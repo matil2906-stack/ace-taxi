@@ -1,0 +1,534 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="ACE TAXI">
+  <meta name="theme-color" content="#0f0f0f">
+  <link rel="manifest" href="manifest.json">
+  <title>ACE TAXI</title>
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <style>
+    :root{--bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#242424;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0f0f0;--text2:#888;--text3:#444;--accent:#f5c842;--green:#4ade80;--red:#f87171;--radius:14px;--radius-sm:8px}
+    *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+    html,body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+    .screen{display:none;min-height:100vh;padding-bottom:60px}
+    .screen.active{display:block}
+    .login-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:100vh;padding:2rem}
+    .login-logo{width:72px;height:72px;background:var(--accent);border-radius:20px;display:flex;align-items:center;justify-content:center;margin-bottom:1.5rem}
+    .login-title{font-size:28px;font-weight:600;margin-bottom:6px}
+    .login-sub{font-size:14px;color:var(--text2);margin-bottom:2.5rem}
+    .login-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:1.5rem;width:100%;max-width:360px}
+    .lbl{font-size:12px;color:var(--text2);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px;display:block}
+    .login-input{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:14px;font-size:22px;font-family:'DM Mono',monospace;color:var(--text);letter-spacing:0.2em;text-align:center;outline:none;transition:border-color 0.2s}
+    .login-input:focus{border-color:var(--accent)}
+    .login-btn{width:100%;margin-top:14px;background:var(--accent);color:#0f0f0f;border:none;border-radius:var(--radius-sm);padding:14px;font-size:15px;font-weight:600;font-family:'DM Sans',sans-serif;cursor:pointer}
+    .login-btn:active{opacity:0.85}
+    .login-err{color:var(--red);font-size:13px;margin-top:10px;text-align:center;display:none}
+    .login-hint{font-size:12px;color:var(--text3);text-align:center;margin-top:1.5rem}
+    .topbar{display:flex;align-items:center;justify-content:space-between;padding:14px 16px;border-bottom:1px solid var(--border);position:sticky;top:0;background:var(--bg);z-index:10}
+    .topbar-title{font-size:17px;font-weight:600}
+    .badge{display:inline-flex;padding:2px 8px;border-radius:20px;font-size:11px;font-weight:500;font-family:'DM Mono',monospace;margin-top:3px}
+    .badge-patron{background:rgba(245,200,66,0.15);color:var(--accent)}
+    .badge-employe{background:rgba(74,222,128,0.12);color:var(--green)}
+    .topbar-right{display:flex;gap:6px}
+    .tbtn{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;font-size:12px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif}
+    .sync-bar{display:flex;align-items:center;gap:8px;padding:7px 16px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:12px;color:var(--text2)}
+    .sdot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0}
+    .sdot.ok{background:var(--green)}
+    .sdot.loading{background:var(--accent);animation:pulse 1s infinite}
+    .sdot.err{background:var(--red)}
+    @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+    .tabs{display:flex;gap:4px;padding:10px 14px;border-bottom:1px solid var(--border)}
+    .tab{flex:1;padding:8px 4px;border-radius:var(--radius-sm);border:1px solid transparent;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;transition:all 0.15s}
+    .tab.active{background:var(--bg2);border-color:var(--border2);color:var(--text)}
+    .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px}
+    .stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;text-align:center}
+    .stat-val{font-size:22px;font-weight:600;color:var(--accent)}
+    .stat-lbl{font-size:11px;color:var(--text2);margin-top:2px}
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-family:'DM Sans',sans-serif;transition:all 0.15s}
+    .btn:active{transform:scale(0.97)}
+    .btn-accent{background:var(--accent);color:#0f0f0f;border-color:transparent;font-weight:600}
+    .btn-accent:active{opacity:0.85}
+    .btn-danger{border-color:rgba(248,113,113,0.3);color:var(--red)}
+    .btn-green{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.3);color:var(--green);font-weight:600}
+    .btn-sm{padding:5px 10px;font-size:12px}
+    .filters{display:flex;gap:8px;padding:0 14px 10px;flex-wrap:wrap}
+    .filters input,.filters select{flex:1;min-width:100px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
+    .filters input:focus,.filters select:focus{border-color:var(--accent)}
+    .filters select option{background:var(--bg2)}
+    .add-row{padding:0 14px 10px;display:flex;justify-content:flex-end}
+    .list{padding:0 14px;display:flex;flex-direction:column;gap:8px}
+    .tcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;transition:all 0.3s}
+    .tcard.termine{opacity:0.35;filter:grayscale(1)}
+    .tcard-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
+    .tcard-datetime{font-size:14px;font-weight:600}
+    .tcard-emp{font-size:12px;color:var(--text2);margin-top:2px}
+    .status-tag{font-size:11px;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:500;white-space:nowrap}
+    .status-afaire{background:rgba(245,200,66,0.15);color:var(--accent)}
+    .status-termine{background:rgba(100,100,100,0.2);color:var(--text3)}
+    .tcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
+    .tlabel{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px}
+    .tval{font-size:13px;color:var(--text)}
+    .tcard-note{grid-column:1/-1;background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text2)}
+    .tcard-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+    .item-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
+    .item-row:last-child{border-bottom:none}
+    .avatar{width:38px;height:38px;border-radius:50%;background:rgba(245,200,66,0.15);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--accent);flex-shrink:0;font-family:'DM Mono',monospace}
+    .avatar-blue{background:rgba(96,165,250,0.12);color:#60a5fa}
+    .item-info{margin-left:12px;flex:1}
+    .item-nom{font-size:14px;font-weight:500}
+    .item-sub{font-size:12px;color:var(--text2);font-family:'DM Mono',monospace;margin-top:2px}
+    .notif-banner{margin:10px 14px 0;background:rgba(245,200,66,0.1);border:1px solid rgba(245,200,66,0.3);border-radius:var(--radius-sm);padding:10px 14px;font-size:13px;color:var(--accent);display:none}
+    .notif-banner.show{display:block}
+    .modal-bg{position:fixed;inset:0;background:rgba(0,0,0,0.75);display:none;align-items:flex-end;justify-content:center;z-index:100}
+    .modal-bg.open{display:flex}
+    .modal{background:var(--bg2);border-radius:var(--radius) var(--radius) 0 0;border-top:1px solid var(--border);padding:1.5rem;width:100%;max-width:500px;max-height:90vh;overflow-y:auto}
+    .modal-handle{width:40px;height:4px;background:var(--border2);border-radius:2px;margin:0 auto 1.25rem}
+    .modal h3{font-size:16px;font-weight:600;margin-bottom:1.25rem}
+    .field{margin-bottom:12px}
+    .field label{display:block;font-size:12px;color:var(--text2);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.06em;margin-bottom:6px}
+    .field input,.field select{width:100%;background:var(--bg3);border:1px solid var(--border);border-radius:var(--radius-sm);padding:12px 14px;font-size:15px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
+    .field input:focus,.field select:focus{border-color:var(--accent)}
+    .field select option{background:var(--bg3)}
+    .modal-actions{display:flex;gap:10px;margin-top:1.25rem}
+    .modal-err{color:var(--red);font-size:13px;margin-top:8px;display:none}
+    .empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:14px}
+    .section-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin:0 14px}
+  </style>
+</head>
+<body>
+
+<div id="s-login" class="screen active">
+  <div class="login-wrap">
+    <div class="login-logo">
+      <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/>
+        <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+      </svg>
+    </div>
+    <p class="login-title">ACE TAXI</p>
+    <p class="login-sub">Entrez votre code d'accès</p>
+    <div class="login-card">
+      <span class="lbl">Code</span>
+      <input type="password" class="login-input" id="lpwd" placeholder="•••" inputmode="text" autocomplete="off">
+      <p class="login-err" id="lerr">Code incorrect</p>
+      <button class="login-btn" onclick="doLogin()">Se connecter</button>
+    </div>
+    <p class="login-hint">Patron : code <span style="color:var(--accent);font-family:'DM Mono',monospace">1</span></p>
+  </div>
+</div>
+
+<div id="s-patron" class="screen">
+  <div class="topbar">
+    <div><div class="topbar-title">ACE TAXI</div><span class="badge badge-patron">Patron</span></div>
+    <div class="topbar-right">
+      <button class="tbtn" onclick="loadAll(true)">↻ Sync</button>
+      <button class="tbtn" onclick="logout()">Déconnexion</button>
+    </div>
+  </div>
+  <div class="sync-bar"><div class="sdot" id="sdot-p"></div><span id="stxt-p">Chargement...</span></div>
+  <div class="tabs">
+    <button class="tab active" id="tb-planning" onclick="switchTab('planning')">Planning</button>
+    <button class="tab" id="tb-clients" onclick="switchTab('clients')">Clients</button>
+    <button class="tab" id="tb-employes" onclick="switchTab('employes')">Employés</button>
+  </div>
+  <div id="tab-planning">
+    <div class="stats">
+      <div class="stat"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">Total</div></div>
+      <div class="stat"><div class="stat-val" id="st-today">0</div><div class="stat-lbl">Aujourd'hui</div></div>
+      <div class="stat"><div class="stat-val" id="st-done">0</div><div class="stat-lbl">Terminés</div></div>
+    </div>
+    <div class="filters">
+      <input type="date" id="fd" oninput="renderTrajets()">
+      <select id="fe" onchange="renderTrajets()"><option value="">Tous</option></select>
+      <select id="fs" onchange="renderTrajets()">
+        <option value="">Tous statuts</option>
+        <option value="afaire">À faire</option>
+        <option value="termine">Terminés</option>
+      </select>
+    </div>
+    <div class="add-row"><button class="btn btn-accent" onclick="openTrajetModal(null)">+ Nouveau trajet</button></div>
+    <div class="list" id="list-patron"></div>
+  </div>
+  <div id="tab-clients" style="display:none">
+    <div class="add-row" style="padding-top:14px"><button class="btn btn-accent" onclick="openClientModal(null)">+ Ajouter un client</button></div>
+    <div class="section-card" id="list-clients"></div>
+  </div>
+  <div id="tab-employes" style="display:none">
+    <div class="add-row" style="padding-top:14px"><button class="btn btn-accent" onclick="openEmpModal(null)">+ Ajouter un employé</button></div>
+    <div class="section-card" id="list-emps"></div>
+  </div>
+</div>
+
+<div id="s-employe" class="screen">
+  <div class="topbar">
+    <div><div class="topbar-title">ACE TAXI</div><span class="badge badge-employe" id="emp-badge">Employé</span></div>
+    <div class="topbar-right">
+      <button class="tbtn" onclick="loadAll(false)">↻ Sync</button>
+      <button class="tbtn" onclick="logout()">Déco</button>
+    </div>
+  </div>
+  <div class="sync-bar"><div class="sdot" id="sdot-e"></div><span id="stxt-e">Chargement...</span></div>
+  <div class="notif-banner" id="notif-banner"></div>
+  <div class="filters" style="padding-top:12px">
+    <input type="date" id="fed" oninput="renderEmpView()">
+    <button class="btn btn-sm" onclick="document.getElementById('fed').value='';renderEmpView()">Effacer</button>
+  </div>
+  <div class="list" id="list-employe"></div>
+</div>
+
+<div class="modal-bg" id="modal-trajet">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="mt-title">Nouveau trajet</h3>
+    <div class="field"><label>Date</label><input type="date" id="f-date"></div>
+    <div class="field"><label>Heure</label><input type="time" id="f-heure"></div>
+    <div class="field"><label>Client</label><select id="f-client"><option value="">-- Choisir --</option></select></div>
+    <div class="field"><label>Départ</label><input type="text" id="f-depart" placeholder="Adresse de départ"></div>
+    <div class="field"><label>Arrivée</label><input type="text" id="f-arrivee" placeholder="Adresse d'arrivée"></div>
+    <div class="field"><label>Employé</label><select id="f-employe"><option value="">-- Choisir --</option></select></div>
+    <div class="field"><label>Note</label><input type="text" id="f-note" placeholder="Optionnel"></div>
+    <p class="modal-err" id="terr">Remplissez tous les champs obligatoires</p>
+    <div class="modal-actions">
+      <button class="btn" style="flex:1" onclick="closeModal('modal-trajet')">Annuler</button>
+      <button class="btn btn-accent" style="flex:2" onclick="saveTrajet()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-client">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="mc-title">Nouveau client</h3>
+    <div class="field"><label>Nom</label><input type="text" id="c-nom" placeholder="Nom du client"></div>
+    <div class="field"><label>Téléphone</label><input type="tel" id="c-tel" placeholder="ex : 06 12 34 56 78"></div>
+    <div class="field"><label>Adresse habituelle</label><input type="text" id="c-adr" placeholder="Optionnel"></div>
+    <p class="modal-err" id="cerr">Remplissez le nom du client</p>
+    <div class="modal-actions">
+      <button class="btn" style="flex:1" onclick="closeModal('modal-client')">Annuler</button>
+      <button class="btn btn-accent" style="flex:2" onclick="saveClient()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-bg" id="modal-emp">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="me-title">Nouvel employé</h3>
+    <div class="field"><label>Prénom / Nom</label><input type="text" id="e-nom" placeholder="ex : Jean Dupont"></div>
+    <div class="field"><label>Code d'accès</label><input type="text" id="e-code" placeholder="ex : jean456" autocomplete="off"></div>
+    <p class="modal-err" id="eerr">Remplissez tous les champs</p>
+    <div class="modal-actions">
+      <button class="btn" style="flex:1" onclick="closeModal('modal-emp')">Annuler</button>
+      <button class="btn btn-accent" style="flex:2" onclick="saveEmp()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+const SURL='https://smgfzzmyuhihdiinqwkh.supabase.co';
+const SKEY='sb_publishable_8sv-Hp6AGJb7qorD8tyA4Q_RQfReBNi';
+const sb=supabase.createClient(SURL,SKEY);
+
+let trajets=[],employes=[],clients=[];
+let currentRole=null,currentEmp=null;
+let editTrajetId=null,editEmpId=null,editClientId=null;
+
+function setSS(role,status,msg){
+  const d=document.getElementById('sdot-'+role);
+  const t=document.getElementById('stxt-'+role);
+  if(!d||!t)return;
+  d.className='sdot '+status;
+  t.textContent=msg;
+}
+
+async function loadAll(isPatron){
+  const role=isPatron?'p':'e';
+  setSS(role,'loading','Chargement...');
+  try{
+    const[rt,re,rc]=await Promise.all([
+      sb.from('trajets').select('*').order('date').order('heure'),
+      sb.from('employes').select('*'),
+      sb.from('clients').select('*')
+    ]);
+    trajets=rt.data||[];
+    employes=re.data||[];
+    clients=rc.data||[];
+    setSS(role,'ok','Synchronisé · '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}));
+    if(isPatron)renderAll();
+    else{checkNouveaux(currentEmp);renderEmpView();}
+  }catch(e){
+    setSS(role,'err','Erreur de connexion');
+  }
+}
+
+function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
+
+async function doLogin(){
+  setSS('p','loading','');
+  try{
+    const{data}=await sb.from('employes').select('*');
+    employes=data||[];
+  }catch(e){}
+  const pwd=document.getElementById('lpwd').value.trim();
+  document.getElementById('lerr').style.display='none';
+  if(pwd==='1'){
+    currentRole='patron';show('s-patron');
+    loadAll(true);
+  }else{
+    const emp=employes.find(e=>e.code===pwd);
+    if(emp){
+      currentRole='employe';currentEmp=emp;
+      document.getElementById('emp-badge').textContent=emp.nom;
+      show('s-employe');
+      loadAll(false);
+    }else{
+      document.getElementById('lerr').style.display='block';
+    }
+  }
+}
+document.getElementById('lpwd').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
+function logout(){currentRole=null;currentEmp=null;document.getElementById('lpwd').value='';show('s-login')}
+
+function checkNouveaux(emp){
+  const lastSeen=parseInt(localStorage.getItem('ace_seen_'+emp.id)||'0');
+  const nouveaux=trajets.filter(t=>t.created_at&&t.created_at>lastSeen);
+  localStorage.setItem('ace_seen_'+emp.id,Date.now().toString());
+  const b=document.getElementById('notif-banner');
+  if(nouveaux.length>0){b.textContent=nouveaux.length===1?'1 nouveau trajet depuis votre dernière connexion':`${nouveaux.length} nouveaux trajets depuis votre dernière connexion`;b.classList.add('show');}
+  else b.classList.remove('show');
+}
+
+function switchTab(t){
+  ['planning','clients','employes'].forEach(n=>{
+    document.getElementById('tb-'+n).classList.toggle('active',n===t);
+    document.getElementById('tab-'+n).style.display=n===t?'block':'none';
+  });
+}
+
+function fmtDate(d){
+  if(!d)return'';
+  const[y,m,j]=d.split('-');
+  const jours=['Dim','Lun','Mar','Mer','Jeu','Ven','Sam'];
+  return`${jours[new Date(+y,+m-1,+j).getDay()]} ${j}/${m}/${y}`;
+}
+function initials(n){return n.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)}
+
+function updateStats(){
+  const today=new Date().toISOString().split('T')[0];
+  document.getElementById('st-total').textContent=trajets.length;
+  document.getElementById('st-today').textContent=trajets.filter(t=>t.date===today).length;
+  document.getElementById('st-done').textContent=trajets.filter(t=>t.statut==='termine').length;
+}
+
+function updateSelects(){
+  const fe=document.getElementById('fe');const cv=fe.value;
+  fe.innerHTML='<option value="">Tous</option>'+employes.map(e=>`<option value="${e.id}"${e.id===cv?' selected':''}>${e.nom}</option>`).join('');
+  const fc=document.getElementById('f-client');const cc=fc.value;
+  fc.innerHTML='<option value="">-- Choisir --</option>'+clients.map(c=>`<option value="${c.id}"${c.id===cc?' selected':''}>${c.nom}</option>`).join('');
+  const fe2=document.getElementById('f-employe');const ce=fe2.value;
+  fe2.innerHTML='<option value="">-- Choisir --</option>'+employes.map(e=>`<option value="${e.id}"${e.id===ce?' selected':''}>${e.nom}</option>`).join('');
+}
+
+function renderTrajets(){
+  updateSelects();
+  const fd=document.getElementById('fd').value;
+  const fe=document.getElementById('fe').value;
+  const fs=document.getElementById('fs').value;
+  const list=trajets.filter(t=>(!fd||t.date===fd)&&(!fe||t.emp_id===fe)&&(!fs||t.statut===fs));
+  const el=document.getElementById('list-patron');
+  if(!list.length){el.innerHTML='<div class="empty">Aucun trajet</div>';return;}
+  el.innerHTML=list.map(t=>{
+    const emp=employes.find(e=>e.id===t.emp_id);
+    const cli=clients.find(c=>c.id===t.client_id);
+    const termine=t.statut==='termine';
+    return`<div class="tcard${termine?' termine':''}">
+      <div class="tcard-head">
+        <div><div class="tcard-datetime">${fmtDate(t.date)} · ${t.heure}</div><div class="tcard-emp">${emp?emp.nom:'—'}</div></div>
+        <span class="status-tag ${termine?'status-termine':'status-afaire'}">${termine?'✓ Terminé':'À faire'}</span>
+      </div>
+      <div class="tcard-grid">
+        <div><div class="tlabel">Client</div><div class="tval">${cli?cli.nom:'—'}</div></div>
+        <div><div class="tlabel">Chauffeur</div><div class="tval">${emp?emp.nom:'—'}</div></div>
+        <div><div class="tlabel">Départ</div><div class="tval">${t.depart}</div></div>
+        <div><div class="tlabel">Arrivée</div><div class="tval">${t.arrivee}</div></div>
+        ${t.note?`<div class="tcard-note">${t.note}</div>`:''}
+      </div>
+      <div class="tcard-actions">
+        <button class="btn btn-sm" onclick="openTrajetModal('${t.id}')">Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="delTrajet('${t.id}')">Supprimer</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function renderClients(){
+  const el=document.getElementById('list-clients');
+  if(!clients.length){el.innerHTML='<div class="empty">Aucun client</div>';return;}
+  el.innerHTML=clients.map(c=>`
+    <div class="item-row">
+      <div class="avatar avatar-blue">${initials(c.nom)}</div>
+      <div class="item-info"><div class="item-nom">${c.nom}</div><div class="item-sub">${c.tel||'Pas de tél'}</div></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="openClientModal('${c.id}')">Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="delClient('${c.id}')">Supprimer</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderEmps(){
+  const el=document.getElementById('list-emps');
+  if(!employes.length){el.innerHTML='<div class="empty">Aucun employé</div>';return;}
+  el.innerHTML=employes.map(e=>`
+    <div class="item-row">
+      <div class="avatar">${initials(e.nom)}</div>
+      <div class="item-info"><div class="item-nom">${e.nom}</div><div class="item-sub">Code : ${e.code}</div></div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="openEmpModal('${e.id}')">Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="delEmp('${e.id}')">Supprimer</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderAll(){updateStats();renderTrajets();renderClients();renderEmps();}
+
+function openTrajetModal(id){
+  editTrajetId=id;
+  document.getElementById('mt-title').textContent=id?'Modifier le trajet':'Nouveau trajet';
+  updateSelects();
+  if(id){
+    const t=trajets.find(x=>x.id===id);
+    document.getElementById('f-date').value=t.date;
+    document.getElementById('f-heure').value=t.heure;
+    document.getElementById('f-client').value=t.client_id||'';
+    document.getElementById('f-depart').value=t.depart;
+    document.getElementById('f-arrivee').value=t.arrivee;
+    document.getElementById('f-employe').value=t.emp_id;
+    document.getElementById('f-note').value=t.note||'';
+  }else{
+    ['f-date','f-heure','f-depart','f-arrivee','f-note'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('f-client').value='';document.getElementById('f-employe').value='';
+  }
+  document.getElementById('terr').style.display='none';
+  document.getElementById('modal-trajet').classList.add('open');
+}
+
+async function saveTrajet(){
+  const date=document.getElementById('f-date').value;
+  const heure=document.getElementById('f-heure').value;
+  const client_id=document.getElementById('f-client').value;
+  const depart=document.getElementById('f-depart').value.trim();
+  const arrivee=document.getElementById('f-arrivee').value.trim();
+  const emp_id=document.getElementById('f-employe').value;
+  const note=document.getElementById('f-note').value.trim();
+  if(!date||!heure||!client_id||!depart||!arrivee||!emp_id){document.getElementById('terr').style.display='block';return;}
+  setSS('p','loading','Sauvegarde...');
+  if(editTrajetId){
+    await sb.from('trajets').update({date,heure,client_id,depart,arrivee,emp_id,note}).eq('id',editTrajetId);
+  }else{
+    await sb.from('trajets').insert({id:Date.now().toString(),date,heure,client_id,depart,arrivee,emp_id,note,statut:'afaire',created_at:Date.now()});
+  }
+  closeModal('modal-trajet');
+  await loadAll(true);
+}
+
+async function delTrajet(id){
+  await sb.from('trajets').delete().eq('id',id);
+  await loadAll(true);
+}
+
+function openClientModal(id){
+  editClientId=id;
+  document.getElementById('mc-title').textContent=id?'Modifier le client':'Nouveau client';
+  if(id){const c=clients.find(x=>x.id===id);document.getElementById('c-nom').value=c.nom;document.getElementById('c-tel').value=c.tel||'';document.getElementById('c-adr').value=c.adr||'';}
+  else{['c-nom','c-tel','c-adr'].forEach(i=>document.getElementById(i).value='');}
+  document.getElementById('cerr').style.display='none';
+  document.getElementById('modal-client').classList.add('open');
+}
+
+async function saveClient(){
+  const nom=document.getElementById('c-nom').value.trim();
+  const tel=document.getElementById('c-tel').value.trim();
+  const adr=document.getElementById('c-adr').value.trim();
+  if(!nom){document.getElementById('cerr').style.display='block';return;}
+  if(editClientId){await sb.from('clients').update({nom,tel,adr}).eq('id',editClientId);}
+  else await sb.from('clients').insert({id:Date.now().toString(),nom,tel,adr});
+  closeModal('modal-client');
+  await loadAll(true);
+}
+
+async function delClient(id){
+  await sb.from('clients').delete().eq('id',id);
+  await loadAll(true);
+}
+
+function openEmpModal(id){
+  editEmpId=id;
+  document.getElementById('me-title').textContent=id?"Modifier l'employé":'Nouvel employé';
+  if(id){const e=employes.find(x=>x.id===id);document.getElementById('e-nom').value=e.nom;document.getElementById('e-code').value=e.code;}
+  else{document.getElementById('e-nom').value='';document.getElementById('e-code').value='';}
+  document.getElementById('eerr').style.display='none';
+  document.getElementById('modal-emp').classList.add('open');
+}
+
+async function saveEmp(){
+  const nom=document.getElementById('e-nom').value.trim();
+  const code=document.getElementById('e-code').value.trim();
+  if(!nom||!code){document.getElementById('eerr').style.display='block';return;}
+  if(editEmpId){await sb.from('employes').update({nom,code}).eq('id',editEmpId);}
+  else await sb.from('employes').insert({id:Date.now().toString(),nom,code});
+  closeModal('modal-emp');
+  await loadAll(true);
+}
+
+async function delEmp(id){
+  await sb.from('employes').delete().eq('id',id);
+  await loadAll(true);
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+function renderEmpView(){
+  const fd=document.getElementById('fed').value;
+  const list=trajets.filter(t=>!fd||t.date===fd);
+  const el=document.getElementById('list-employe');
+  if(!list.length){el.innerHTML='<div class="empty">Aucun trajet</div>';return;}
+  el.innerHTML=list.map(t=>{
+    const emp=employes.find(e=>e.id===t.emp_id);
+    const cli=clients.find(c=>c.id===t.client_id);
+    const termine=t.statut==='termine';
+    return`<div class="tcard${termine?' termine':''}">
+      <div class="tcard-head">
+        <div><div class="tcard-datetime">${fmtDate(t.date)} · ${t.heure}</div><div class="tcard-emp">${emp?emp.nom:'—'}</div></div>
+        <span class="status-tag ${termine?'status-termine':'status-afaire'}">${termine?'✓ Terminé':'À faire'}</span>
+      </div>
+      <div class="tcard-grid">
+        <div><div class="tlabel">Client</div><div class="tval">${cli?cli.nom:'—'}</div></div>
+        <div style="grid-column:1/-1;display:flex;align-items:flex-start;gap:10px">
+          <div style="flex:1"><div class="tlabel">Départ</div><div class="tval">${t.depart}</div></div>
+          <div style="color:var(--text3);margin-top:16px">→</div>
+          <div style="flex:1"><div class="tlabel">Arrivée</div><div class="tval">${t.arrivee}</div></div>
+        </div>
+        ${t.note?`<div class="tcard-note">${t.note}</div>`:''}
+      </div>
+      ${!termine?`<div class="tcard-actions"><button class="btn btn-green" style="width:100%" onclick="validerTrajet('${t.id}')">✓ Trajet effectué</button></div>`:''}
+    </div>`;
+  }).join('');
+}
+
+async function validerTrajet(id){
+  setSS('e','loading','Envoi...');
+  await sb.from('trajets').update({statut:'termine'}).eq('id',id);
+  await loadAll(false);
+}
+
+document.querySelectorAll('.modal-bg').forEach(m=>{
+  m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});
+});
+</script>
+</body>
+</html>
