@@ -11,7 +11,7 @@
   <title>ACE TAXI</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#242424;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0f0f0;--text2:#888;--text3:#444;--accent:#f5c842;--green:#4ade80;--red:#f87171;--radius:14px;--radius-sm:8px}
+    :root{--bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#242424;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0f0f0;--text2:#888;--text3:#444;--accent:#f5c842;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--radius:14px;--radius-sm:8px}
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
     .screen{display:none;min-height:100vh;padding-bottom:60px}
@@ -41,8 +41,8 @@
     .sdot.loading{background:var(--accent);animation:pulse 1s infinite}
     .sdot.err{background:var(--red)}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
-    .tabs{display:flex;gap:4px;padding:10px 14px;border-bottom:1px solid var(--border)}
-    .tab{flex:1;padding:8px 4px;border-radius:var(--radius-sm);border:1px solid transparent;font-size:13px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;transition:all 0.15s}
+    .tabs{display:flex;gap:4px;padding:10px 8px;border-bottom:1px solid var(--border);overflow-x:auto}
+    .tab{flex:1;padding:8px 4px;border-radius:var(--radius-sm);border:1px solid transparent;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;min-width:60px}
     .tab.active{background:var(--bg2);border-color:var(--border2);color:var(--text)}
     .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;padding:14px}
     .stat{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:10px;text-align:center}
@@ -54,15 +54,17 @@
     .btn-accent:active{opacity:0.85}
     .btn-danger{border-color:rgba(248,113,113,0.3);color:var(--red)}
     .btn-green{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.3);color:var(--green);font-weight:600}
+    .btn-blue{background:rgba(96,165,250,0.12);border-color:rgba(96,165,250,0.3);color:var(--blue);font-weight:600}
     .btn-sm{padding:5px 10px;font-size:12px}
     .filters{display:flex;gap:8px;padding:0 14px 10px;flex-wrap:wrap}
     .filters input,.filters select{flex:1;min-width:100px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
     .filters input:focus,.filters select:focus{border-color:var(--accent)}
     .filters select option{background:var(--bg2)}
-    .add-row{padding:0 14px 10px;display:flex;justify-content:flex-end}
+    .add-row{padding:0 14px 10px;display:flex;justify-content:flex-end;gap:8px}
     .list{padding:0 14px;display:flex;flex-direction:column;gap:8px}
     .tcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;transition:all 0.3s}
     .tcard.termine{opacity:0.35;filter:grayscale(1)}
+    .tcard.aller-retour{border-left:3px solid var(--blue)}
     .tcard-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
     .tcard-datetime{font-size:14px;font-weight:600}
     .tcard-emp{font-size:12px;color:var(--text2);margin-top:2px}
@@ -74,10 +76,15 @@
     .tval{font-size:13px;color:var(--text)}
     .tcard-note{grid-column:1/-1;background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text2)}
     .tcard-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
+    .client-stop{background:var(--bg3);border-radius:var(--radius-sm);padding:10px;margin-bottom:6px}
+    .client-stop-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+    .client-stop-nom{font-size:13px;font-weight:600}
+    .retour-tag{background:rgba(96,165,250,0.12);color:var(--blue);font-size:10px;padding:2px 6px;border-radius:10px;font-family:'DM Mono',monospace}
     .item-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
     .item-row:last-child{border-bottom:none}
     .avatar{width:38px;height:38px;border-radius:50%;background:rgba(245,200,66,0.15);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--accent);flex-shrink:0;font-family:'DM Mono',monospace}
-    .avatar-blue{background:rgba(96,165,250,0.12);color:#60a5fa}
+    .avatar-blue{background:rgba(96,165,250,0.12);color:var(--blue)}
+    .avatar-green{background:rgba(74,222,128,0.12);color:var(--green)}
     .item-info{margin-left:12px;flex:1}
     .item-nom{font-size:14px;font-weight:500}
     .item-sub{font-size:12px;color:var(--text2);font-family:'DM Mono',monospace;margin-top:2px}
@@ -97,6 +104,12 @@
     .modal-err{color:var(--red);font-size:13px;margin-top:8px;display:none}
     .empty{text-align:center;padding:3rem 1rem;color:var(--text3);font-size:14px}
     .section-card{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);margin:0 14px}
+    .stop-block{background:var(--bg3);border-radius:var(--radius-sm);padding:12px;margin-bottom:10px;border:1px solid var(--border)}
+    .stop-block-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;font-size:13px;font-weight:600;color:var(--text2)}
+    .ar-toggle{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg3);border-radius:var(--radius-sm);margin-bottom:12px;cursor:pointer}
+    .ar-toggle input{width:18px;height:18px;cursor:pointer;accent-color:var(--blue)}
+    .ar-toggle span{font-size:14px;color:var(--text)}
+    .section-title{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;padding:12px 14px 4px;margin-top:4px}
   </style>
 </head>
 <body>
@@ -125,8 +138,8 @@
   <div class="topbar">
     <div><div class="topbar-title">ACE TAXI</div><span class="badge badge-patron">Patron</span></div>
     <div class="topbar-right">
-      <button class="tbtn" onclick="loadAll(true)">↻ Sync</button>
-      <button class="tbtn" onclick="logout()">Déconnexion</button>
+      <button class="tbtn" onclick="loadAll(true)">↻</button>
+      <button class="tbtn" onclick="logout()">Déco</button>
     </div>
   </div>
   <div class="sync-bar"><div class="sdot" id="sdot-p"></div><span id="stxt-p">Chargement...</span></div>
@@ -134,7 +147,9 @@
     <button class="tab active" id="tb-planning" onclick="switchTab('planning')">Planning</button>
     <button class="tab" id="tb-clients" onclick="switchTab('clients')">Clients</button>
     <button class="tab" id="tb-employes" onclick="switchTab('employes')">Employés</button>
+    <button class="tab" id="tb-vehicules" onclick="switchTab('vehicules')">Véhicules</button>
   </div>
+
   <div id="tab-planning">
     <div class="stats">
       <div class="stat"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">Total</div></div>
@@ -143,7 +158,7 @@
     </div>
     <div class="filters">
       <input type="date" id="fd" oninput="renderTrajets()">
-      <select id="fe" onchange="renderTrajets()"><option value="">Tous</option></select>
+      <select id="fe" onchange="renderTrajets()"><option value="">Tous employés</option></select>
       <select id="fs" onchange="renderTrajets()">
         <option value="">Tous statuts</option>
         <option value="afaire">À faire</option>
@@ -153,13 +168,20 @@
     <div class="add-row"><button class="btn btn-accent" onclick="openTrajetModal(null)">+ Nouveau trajet</button></div>
     <div class="list" id="list-patron"></div>
   </div>
+
   <div id="tab-clients" style="display:none">
     <div class="add-row" style="padding-top:14px"><button class="btn btn-accent" onclick="openClientModal(null)">+ Ajouter un client</button></div>
     <div class="section-card" id="list-clients"></div>
   </div>
+
   <div id="tab-employes" style="display:none">
     <div class="add-row" style="padding-top:14px"><button class="btn btn-accent" onclick="openEmpModal(null)">+ Ajouter un employé</button></div>
     <div class="section-card" id="list-emps"></div>
+  </div>
+
+  <div id="tab-vehicules" style="display:none">
+    <div class="add-row" style="padding-top:14px"><button class="btn btn-accent" onclick="openVehModal(null)">+ Ajouter un véhicule</button></div>
+    <div class="section-card" id="list-vehs"></div>
   </div>
 </div>
 
@@ -167,7 +189,7 @@
   <div class="topbar">
     <div><div class="topbar-title">ACE TAXI</div><span class="badge badge-employe" id="emp-badge">Employé</span></div>
     <div class="topbar-right">
-      <button class="tbtn" onclick="loadAll(false)">↻ Sync</button>
+      <button class="tbtn" onclick="loadAll(false)">↻</button>
       <button class="tbtn" onclick="logout()">Déco</button>
     </div>
   </div>
@@ -180,16 +202,25 @@
   <div class="list" id="list-employe"></div>
 </div>
 
+<!-- MODAL TRAJET -->
 <div class="modal-bg" id="modal-trajet">
   <div class="modal">
     <div class="modal-handle"></div>
     <h3 id="mt-title">Nouveau trajet</h3>
     <div class="field"><label>Date</label><input type="date" id="f-date"></div>
     <div class="field"><label>Heure</label><input type="time" id="f-heure"></div>
-    <div class="field"><label>Client</label><select id="f-client"><option value="">-- Choisir --</option></select></div>
-    <div class="field"><label>Départ</label><input type="text" id="f-depart" placeholder="Adresse de départ"></div>
-    <div class="field"><label>Arrivée</label><input type="text" id="f-arrivee" placeholder="Adresse d'arrivée"></div>
     <div class="field"><label>Employé</label><select id="f-employe"><option value="">-- Choisir --</option></select></div>
+    <div class="field"><label>Véhicule</label><select id="f-vehicule"><option value="">-- Choisir --</option></select></div>
+    <div class="ar-toggle">
+      <input type="checkbox" id="f-ar" onchange="toggleAR()">
+      <span>🔄 Trajet aller-retour</span>
+    </div>
+    <div id="ar-depot-block" style="display:none">
+      <div class="field"><label>Adresse où redéposer le client</label><input type="text" id="f-depot" placeholder="ex : Hôpital, domicile..."></div>
+    </div>
+    <div class="section-title">Clients</div>
+    <div id="stops-container"></div>
+    <button class="btn btn-sm" style="margin:8px 0;width:100%" onclick="addStop(false)">+ Ajouter un client</button>
     <div class="field"><label>Note</label><input type="text" id="f-note" placeholder="Optionnel"></div>
     <p class="modal-err" id="terr">Remplissez tous les champs obligatoires</p>
     <div class="modal-actions">
@@ -199,13 +230,15 @@
   </div>
 </div>
 
+<!-- MODAL CLIENT -->
 <div class="modal-bg" id="modal-client">
   <div class="modal">
     <div class="modal-handle"></div>
     <h3 id="mc-title">Nouveau client</h3>
     <div class="field"><label>Nom</label><input type="text" id="c-nom" placeholder="Nom du client"></div>
     <div class="field"><label>Téléphone</label><input type="tel" id="c-tel" placeholder="ex : 06 12 34 56 78"></div>
-    <div class="field"><label>Adresse habituelle</label><input type="text" id="c-adr" placeholder="Optionnel"></div>
+    <div class="field"><label>Adresse domicile</label><input type="text" id="c-adr" placeholder="Adresse du domicile"></div>
+    <div class="field"><label>Destination habituelle</label><input type="text" id="c-dest" placeholder="ex : Hôpital, Mairie..."></div>
     <p class="modal-err" id="cerr">Remplissez le nom du client</p>
     <div class="modal-actions">
       <button class="btn" style="flex:1" onclick="closeModal('modal-client')">Annuler</button>
@@ -214,16 +247,35 @@
   </div>
 </div>
 
+<!-- MODAL EMPLOYE -->
 <div class="modal-bg" id="modal-emp">
   <div class="modal">
     <div class="modal-handle"></div>
     <h3 id="me-title">Nouvel employé</h3>
     <div class="field"><label>Prénom / Nom</label><input type="text" id="e-nom" placeholder="ex : Jean Dupont"></div>
+    <div class="field"><label>Téléphone</label><input type="tel" id="e-tel" placeholder="ex : 06 12 34 56 78"></div>
     <div class="field"><label>Code d'accès</label><input type="text" id="e-code" placeholder="ex : jean456" autocomplete="off"></div>
-    <p class="modal-err" id="eerr">Remplissez tous les champs</p>
+    <p class="modal-err" id="eerr">Remplissez tous les champs obligatoires</p>
     <div class="modal-actions">
       <button class="btn" style="flex:1" onclick="closeModal('modal-emp')">Annuler</button>
       <button class="btn btn-accent" style="flex:2" onclick="saveEmp()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL VEHICULE -->
+<div class="modal-bg" id="modal-veh">
+  <div class="modal">
+    <div class="modal-handle"></div>
+    <h3 id="mv-title">Nouveau véhicule</h3>
+    <div class="field"><label>Marque</label><input type="text" id="v-marque" placeholder="ex : Renault"></div>
+    <div class="field"><label>Modèle</label><input type="text" id="v-modele" placeholder="ex : Scenic"></div>
+    <div class="field"><label>Immatriculation</label><input type="text" id="v-immat" placeholder="ex : AB-123-CD"></div>
+    <div class="field"><label>Couleur</label><input type="text" id="v-couleur" placeholder="ex : Blanc"></div>
+    <p class="modal-err" id="verr">Remplissez la marque et le modèle</p>
+    <div class="modal-actions">
+      <button class="btn" style="flex:1" onclick="closeModal('modal-veh')">Annuler</button>
+      <button class="btn btn-accent" style="flex:2" onclick="saveVeh()">Enregistrer</button>
     </div>
   </div>
 </div>
@@ -234,9 +286,10 @@ const SURL='https://smgfzzmyuhihdiinqwkh.supabase.co';
 const SKEY='sb_publishable_8sv-Hp6AGJb7qorD8tyA4Q_RQfReBNi';
 const sb=supabase.createClient(SURL,SKEY);
 
-let trajets=[],employes=[],clients=[];
+let trajets=[],employes=[],clients=[],vehicules=[];
 let currentRole=null,currentEmp=null;
-let editTrajetId=null,editEmpId=null,editClientId=null;
+let editTrajetId=null,editEmpId=null,editClientId=null,editVehId=null;
+let stops=[];
 
 function setSS(role,status,msg){
   const d=document.getElementById('sdot-'+role);
@@ -250,14 +303,16 @@ async function loadAll(isPatron){
   const role=isPatron?'p':'e';
   setSS(role,'loading','Chargement...');
   try{
-    const[rt,re,rc]=await Promise.all([
+    const[rt,re,rc,rv]=await Promise.all([
       sb.from('trajets').select('*').order('date').order('heure'),
       sb.from('employes').select('*'),
-      sb.from('clients').select('*')
+      sb.from('clients').select('*'),
+      sb.from('vehicules').select('*')
     ]);
     trajets=rt.data||[];
     employes=re.data||[];
     clients=rc.data||[];
+    vehicules=rv.data||[];
     setSS(role,'ok','Synchronisé · '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}));
     if(isPatron)renderAll();
     else{checkNouveaux(currentEmp);renderEmpView();}
@@ -270,22 +325,17 @@ function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.re
 
 async function doLogin(){
   setSS('p','loading','');
-  try{
-    const{data}=await sb.from('employes').select('*');
-    employes=data||[];
-  }catch(e){}
+  try{const{data}=await sb.from('employes').select('*');employes=data||[];}catch(e){}
   const pwd=document.getElementById('lpwd').value.trim();
   document.getElementById('lerr').style.display='none';
   if(pwd==='1'){
-    currentRole='patron';show('s-patron');
-    loadAll(true);
+    currentRole='patron';show('s-patron');loadAll(true);
   }else{
     const emp=employes.find(e=>e.code===pwd);
     if(emp){
       currentRole='employe';currentEmp=emp;
       document.getElementById('emp-badge').textContent=emp.nom;
-      show('s-employe');
-      loadAll(false);
+      show('s-employe');loadAll(false);
     }else{
       document.getElementById('lerr').style.display='block';
     }
@@ -299,12 +349,12 @@ function checkNouveaux(emp){
   const nouveaux=trajets.filter(t=>t.created_at&&t.created_at>lastSeen);
   localStorage.setItem('ace_seen_'+emp.id,Date.now().toString());
   const b=document.getElementById('notif-banner');
-  if(nouveaux.length>0){b.textContent=nouveaux.length===1?'1 nouveau trajet depuis votre dernière connexion':`${nouveaux.length} nouveaux trajets depuis votre dernière connexion`;b.classList.add('show');}
+  if(nouveaux.length>0){b.textContent=nouveaux.length===1?'1 nouveau trajet depuis votre dernière connexion':`${nouveaux.length} nouveaux trajets`;b.classList.add('show');}
   else b.classList.remove('show');
 }
 
 function switchTab(t){
-  ['planning','clients','employes'].forEach(n=>{
+  ['planning','clients','employes','vehicules'].forEach(n=>{
     document.getElementById('tb-'+n).classList.toggle('active',n===t);
     document.getElementById('tab-'+n).style.display=n===t?'block':'none';
   });
@@ -317,6 +367,10 @@ function fmtDate(d){
   return`${jours[new Date(+y,+m-1,+j).getDay()]} ${j}/${m}/${y}`;
 }
 function initials(n){return n.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)}
+function callBtn(tel,label){
+  if(!tel)return'';
+  return`<a href="tel:${tel}" class="btn btn-blue btn-sm" style="text-decoration:none">📞 ${label}</a>`;
+}
 
 function updateStats(){
   const today=new Date().toISOString().split('T')[0];
@@ -327,11 +381,63 @@ function updateStats(){
 
 function updateSelects(){
   const fe=document.getElementById('fe');const cv=fe.value;
-  fe.innerHTML='<option value="">Tous</option>'+employes.map(e=>`<option value="${e.id}"${e.id===cv?' selected':''}>${e.nom}</option>`).join('');
-  const fc=document.getElementById('f-client');const cc=fc.value;
-  fc.innerHTML='<option value="">-- Choisir --</option>'+clients.map(c=>`<option value="${c.id}"${c.id===cc?' selected':''}>${c.nom}</option>`).join('');
+  fe.innerHTML='<option value="">Tous employés</option>'+employes.map(e=>`<option value="${e.id}"${e.id===cv?' selected':''}>${e.nom}</option>`).join('');
   const fe2=document.getElementById('f-employe');const ce=fe2.value;
   fe2.innerHTML='<option value="">-- Choisir --</option>'+employes.map(e=>`<option value="${e.id}"${e.id===ce?' selected':''}>${e.nom}</option>`).join('');
+  const fv=document.getElementById('f-vehicule');const cv2=fv.value;
+  fv.innerHTML='<option value="">-- Choisir --</option>'+vehicules.map(v=>`<option value="${v.id}"${v.id===cv2?' selected':''}>${v.marque} ${v.modele} ${v.immat?'('+v.immat+')':''}</option>`).join('');
+}
+
+function renderStopsInModal(){
+  const container=document.getElementById('stops-container');
+  const isAR=document.getElementById('f-ar').checked;
+  container.innerHTML=stops.map((s,i)=>`
+    <div class="stop-block">
+      <div class="stop-block-head">
+        <span>${isAR&&i>=stops.length/2?'↩ Retour — ':''}Client ${i+1}</span>
+        ${stops.length>1?`<button class="btn btn-danger btn-sm" onclick="removeStop(${i})">✕</button>`:''}
+      </div>
+      <div class="field" style="margin-bottom:8px">
+        <label>Client</label>
+        <select onchange="stops[${i}].client_id=this.value;prefillStop(${i})">
+          <option value="">-- Choisir --</option>
+          ${clients.map(c=>`<option value="${c.id}"${c.id===s.client_id?' selected':''}>${c.nom}</option>`).join('')}
+        </select>
+      </div>
+      <div class="field" style="margin-bottom:8px">
+        <label>Départ</label>
+        <input type="text" value="${s.depart||''}" placeholder="Adresse de départ" oninput="stops[${i}].depart=this.value">
+      </div>
+      <div class="field" style="margin-bottom:0">
+        <label>Arrivée</label>
+        <input type="text" value="${s.arrivee||''}" placeholder="Adresse d'arrivée" oninput="stops[${i}].arrivee=this.value">
+      </div>
+    </div>`).join('');
+}
+
+function prefillStop(i){
+  const cli=clients.find(c=>c.id===stops[i].client_id);
+  if(cli){
+    if(!stops[i].depart&&cli.adr)stops[i].depart=cli.adr;
+    if(!stops[i].arrivee&&cli.dest)stops[i].arrivee=cli.dest;
+    renderStopsInModal();
+  }
+}
+
+function addStop(isRetour){
+  stops.push({client_id:'',depart:'',arrivee:'',retour:isRetour});
+  renderStopsInModal();
+}
+
+function removeStop(i){
+  stops.splice(i,1);
+  renderStopsInModal();
+}
+
+function toggleAR(){
+  const isAR=document.getElementById('f-ar').checked;
+  document.getElementById('ar-depot-block').style.display=isAR?'block':'none';
+  renderStopsInModal();
 }
 
 function renderTrajets(){
@@ -344,21 +450,38 @@ function renderTrajets(){
   if(!list.length){el.innerHTML='<div class="empty">Aucun trajet</div>';return;}
   el.innerHTML=list.map(t=>{
     const emp=employes.find(e=>e.id===t.emp_id);
-    const cli=clients.find(c=>c.id===t.client_id);
+    const veh=vehicules.find(v=>v.id===t.vehicule_id);
+    const stopsData=t.stops||[];
     const termine=t.statut==='termine';
-    return`<div class="tcard${termine?' termine':''}">
+    const isAR=t.aller_retour;
+    return`<div class="tcard${termine?' termine':''}${isAR?' aller-retour':''}">
       <div class="tcard-head">
-        <div><div class="tcard-datetime">${fmtDate(t.date)} · ${t.heure}</div><div class="tcard-emp">${emp?emp.nom:'—'}</div></div>
-        <span class="status-tag ${termine?'status-termine':'status-afaire'}">${termine?'✓ Terminé':'À faire'}</span>
+        <div>
+          <div class="tcard-datetime">${fmtDate(t.date)} · ${t.heure}</div>
+          <div class="tcard-emp">${emp?emp.nom:'—'}${veh?' · 🚗 '+veh.marque+' '+veh.modele:''}</div>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
+          <span class="status-tag ${termine?'status-termine':'status-afaire'}">${termine?'✓ Terminé':'À faire'}</span>
+          ${isAR?'<span class="retour-tag">↩ A/R</span>':''}
+        </div>
       </div>
-      <div class="tcard-grid">
-        <div><div class="tlabel">Client</div><div class="tval">${cli?cli.nom:'—'}</div></div>
-        <div><div class="tlabel">Chauffeur</div><div class="tval">${emp?emp.nom:'—'}</div></div>
-        <div><div class="tlabel">Départ</div><div class="tval">${t.depart}</div></div>
-        <div><div class="tlabel">Arrivée</div><div class="tval">${t.arrivee}</div></div>
-        ${t.note?`<div class="tcard-note">${t.note}</div>`:''}
+      <div style="margin-bottom:10px">
+        ${stopsData.map((s,i)=>{
+          const cli=clients.find(c=>c.id===s.client_id);
+          return`<div class="client-stop">
+            <div class="client-stop-head">
+              <span class="client-stop-nom">${cli?cli.nom:'Client '+(i+1)}</span>
+              <div style="display:flex;gap:4px">
+                ${cli&&cli.tel?callBtn(cli.tel,'Appeler'):''}
+              </div>
+            </div>
+            <div style="font-size:12px;color:var(--text2)">${s.depart||''}${s.depart&&s.arrivee?' → ':''}${s.arrivee||''}</div>
+          </div>`;
+        }).join('')}
       </div>
-      <div class="tcard-actions">
+      ${t.note?`<div class="tcard-note">${t.note}</div>`:''}
+      <div class="tcard-actions" style="margin-top:8px">
+        ${emp&&emp.tel?callBtn(emp.tel,'Appeler chauffeur'):''}
         <button class="btn btn-sm" onclick="openTrajetModal('${t.id}')">Modifier</button>
         <button class="btn btn-danger btn-sm" onclick="delTrajet('${t.id}')">Supprimer</button>
       </div>
@@ -372,8 +495,14 @@ function renderClients(){
   el.innerHTML=clients.map(c=>`
     <div class="item-row">
       <div class="avatar avatar-blue">${initials(c.nom)}</div>
-      <div class="item-info"><div class="item-nom">${c.nom}</div><div class="item-sub">${c.tel||'Pas de tél'}</div></div>
-      <div style="display:flex;gap:6px">
+      <div class="item-info">
+        <div class="item-nom">${c.nom}</div>
+        <div class="item-sub">${c.tel||'Pas de tél'}</div>
+        ${c.adr?`<div style="font-size:11px;color:var(--text3);margin-top:2px">🏠 ${c.adr}</div>`:''}
+        ${c.dest?`<div style="font-size:11px;color:var(--text3);margin-top:1px">📍 ${c.dest}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        ${c.tel?`<a href="tel:${c.tel}" class="btn btn-blue btn-sm" style="text-decoration:none">📞</a>`:''}
         <button class="btn btn-sm" onclick="openClientModal('${c.id}')">Modifier</button>
         <button class="btn btn-danger btn-sm" onclick="delClient('${c.id}')">Supprimer</button>
       </div>
@@ -386,15 +515,37 @@ function renderEmps(){
   el.innerHTML=employes.map(e=>`
     <div class="item-row">
       <div class="avatar">${initials(e.nom)}</div>
-      <div class="item-info"><div class="item-nom">${e.nom}</div><div class="item-sub">Code : ${e.code}</div></div>
-      <div style="display:flex;gap:6px">
+      <div class="item-info">
+        <div class="item-nom">${e.nom}</div>
+        <div class="item-sub">Code : ${e.code}</div>
+        ${e.tel?`<div style="font-size:11px;color:var(--text3);margin-top:2px">📞 ${e.tel}</div>`:''}
+      </div>
+      <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
+        ${e.tel?`<a href="tel:${e.tel}" class="btn btn-blue btn-sm" style="text-decoration:none">📞</a>`:''}
         <button class="btn btn-sm" onclick="openEmpModal('${e.id}')">Modifier</button>
         <button class="btn btn-danger btn-sm" onclick="delEmp('${e.id}')">Supprimer</button>
       </div>
     </div>`).join('');
 }
 
-function renderAll(){updateStats();renderTrajets();renderClients();renderEmps();}
+function renderVehs(){
+  const el=document.getElementById('list-vehs');
+  if(!vehicules.length){el.innerHTML='<div class="empty">Aucun véhicule</div>';return;}
+  el.innerHTML=vehicules.map(v=>`
+    <div class="item-row">
+      <div class="avatar avatar-green">🚗</div>
+      <div class="item-info">
+        <div class="item-nom">${v.marque} ${v.modele}</div>
+        <div class="item-sub">${v.immat||'Pas d\'immat'} ${v.couleur?'· '+v.couleur:''}</div>
+      </div>
+      <div style="display:flex;gap:6px">
+        <button class="btn btn-sm" onclick="openVehModal('${v.id}')">Modifier</button>
+        <button class="btn btn-danger btn-sm" onclick="delVeh('${v.id}')">Supprimer</button>
+      </div>
+    </div>`).join('');
+}
+
+function renderAll(){updateStats();renderTrajets();renderClients();renderEmps();renderVehs();}
 
 function openTrajetModal(id){
   editTrajetId=id;
@@ -404,15 +555,23 @@ function openTrajetModal(id){
     const t=trajets.find(x=>x.id===id);
     document.getElementById('f-date').value=t.date;
     document.getElementById('f-heure').value=t.heure;
-    document.getElementById('f-client').value=t.client_id||'';
-    document.getElementById('f-depart').value=t.depart;
-    document.getElementById('f-arrivee').value=t.arrivee;
-    document.getElementById('f-employe').value=t.emp_id;
+    document.getElementById('f-employe').value=t.emp_id||'';
+    document.getElementById('f-vehicule').value=t.vehicule_id||'';
+    document.getElementById('f-ar').checked=t.aller_retour||false;
+    document.getElementById('ar-depot-block').style.display=(t.aller_retour?'block':'none');
+    document.getElementById('f-depot').value=t.depot||'';
     document.getElementById('f-note').value=t.note||'';
+    stops=t.stops?JSON.parse(JSON.stringify(t.stops)):[];
   }else{
-    ['f-date','f-heure','f-depart','f-arrivee','f-note'].forEach(i=>document.getElementById(i).value='');
-    document.getElementById('f-client').value='';document.getElementById('f-employe').value='';
+    ['f-date','f-heure','f-note'].forEach(i=>document.getElementById(i).value='');
+    document.getElementById('f-employe').value='';
+    document.getElementById('f-vehicule').value='';
+    document.getElementById('f-ar').checked=false;
+    document.getElementById('ar-depot-block').style.display='none';
+    document.getElementById('f-depot').value='';
+    stops=[{client_id:'',depart:'',arrivee:''}];
   }
+  renderStopsInModal();
   document.getElementById('terr').style.display='none';
   document.getElementById('modal-trajet').classList.add('open');
 }
@@ -420,32 +579,36 @@ function openTrajetModal(id){
 async function saveTrajet(){
   const date=document.getElementById('f-date').value;
   const heure=document.getElementById('f-heure').value;
-  const client_id=document.getElementById('f-client').value;
-  const depart=document.getElementById('f-depart').value.trim();
-  const arrivee=document.getElementById('f-arrivee').value.trim();
   const emp_id=document.getElementById('f-employe').value;
+  const vehicule_id=document.getElementById('f-vehicule').value;
+  const aller_retour=document.getElementById('f-ar').checked;
   const note=document.getElementById('f-note').value.trim();
-  if(!date||!heure||!client_id||!depart||!arrivee||!emp_id){document.getElementById('terr').style.display='block';return;}
+  if(!date||!heure||!emp_id||stops.length===0||stops.some(s=>!s.client_id||!s.depart||!s.arrivee)){
+    document.getElementById('terr').style.display='block';return;
+  }
+  const depot=document.getElementById('f-depot').value.trim();
+  let finalStops=[...stops];
+  if(aller_retour){
+    const retours=stops.map(s=>({client_id:s.client_id,depart:depot||s.arrivee,arrivee:s.depart,retour:true}));
+    finalStops=[...stops,...retours];
+  }
   setSS('p','loading','Sauvegarde...');
   if(editTrajetId){
-    await sb.from('trajets').update({date,heure,client_id,depart,arrivee,emp_id,note}).eq('id',editTrajetId);
+    await sb.from('trajets').update({date,heure,emp_id,vehicule_id,aller_retour,depot,stops:finalStops,note}).eq('id',editTrajetId);
   }else{
-    await sb.from('trajets').insert({id:Date.now().toString(),date,heure,client_id,depart,arrivee,emp_id,note,statut:'afaire',created_at:Date.now()});
+    await sb.from('trajets').insert({id:Date.now().toString(),date,heure,emp_id,vehicule_id,aller_retour,depot,stops:finalStops,note,statut:'afaire',created_at:Date.now()});
   }
   closeModal('modal-trajet');
   await loadAll(true);
 }
 
-async function delTrajet(id){
-  await sb.from('trajets').delete().eq('id',id);
-  await loadAll(true);
-}
+async function delTrajet(id){await sb.from('trajets').delete().eq('id',id);await loadAll(true);}
 
 function openClientModal(id){
   editClientId=id;
   document.getElementById('mc-title').textContent=id?'Modifier le client':'Nouveau client';
-  if(id){const c=clients.find(x=>x.id===id);document.getElementById('c-nom').value=c.nom;document.getElementById('c-tel').value=c.tel||'';document.getElementById('c-adr').value=c.adr||'';}
-  else{['c-nom','c-tel','c-adr'].forEach(i=>document.getElementById(i).value='');}
+  if(id){const c=clients.find(x=>x.id===id);document.getElementById('c-nom').value=c.nom;document.getElementById('c-tel').value=c.tel||'';document.getElementById('c-adr').value=c.adr||'';document.getElementById('c-dest').value=c.dest||'';}
+  else{['c-nom','c-tel','c-adr','c-dest'].forEach(i=>document.getElementById(i).value='');}
   document.getElementById('cerr').style.display='none';
   document.getElementById('modal-client').classList.add('open');
 }
@@ -454,41 +617,57 @@ async function saveClient(){
   const nom=document.getElementById('c-nom').value.trim();
   const tel=document.getElementById('c-tel').value.trim();
   const adr=document.getElementById('c-adr').value.trim();
+  const dest=document.getElementById('c-dest').value.trim();
   if(!nom){document.getElementById('cerr').style.display='block';return;}
-  if(editClientId){await sb.from('clients').update({nom,tel,adr}).eq('id',editClientId);}
-  else await sb.from('clients').insert({id:Date.now().toString(),nom,tel,adr});
-  closeModal('modal-client');
-  await loadAll(true);
+  if(editClientId){await sb.from('clients').update({nom,tel,adr,dest}).eq('id',editClientId);}
+  else await sb.from('clients').insert({id:Date.now().toString(),nom,tel,adr,dest});
+  closeModal('modal-client');await loadAll(true);
 }
 
-async function delClient(id){
-  await sb.from('clients').delete().eq('id',id);
-  await loadAll(true);
-}
+async function delClient(id){await sb.from('clients').delete().eq('id',id);await loadAll(true);}
 
 function openEmpModal(id){
   editEmpId=id;
   document.getElementById('me-title').textContent=id?"Modifier l'employé":'Nouvel employé';
-  if(id){const e=employes.find(x=>x.id===id);document.getElementById('e-nom').value=e.nom;document.getElementById('e-code').value=e.code;}
-  else{document.getElementById('e-nom').value='';document.getElementById('e-code').value='';}
+  if(id){const e=employes.find(x=>x.id===id);document.getElementById('e-nom').value=e.nom;document.getElementById('e-tel').value=e.tel||'';document.getElementById('e-code').value=e.code;}
+  else{['e-nom','e-tel','e-code'].forEach(i=>document.getElementById(i).value='');}
   document.getElementById('eerr').style.display='none';
   document.getElementById('modal-emp').classList.add('open');
 }
 
 async function saveEmp(){
   const nom=document.getElementById('e-nom').value.trim();
+  const tel=document.getElementById('e-tel').value.trim();
   const code=document.getElementById('e-code').value.trim();
   if(!nom||!code){document.getElementById('eerr').style.display='block';return;}
-  if(editEmpId){await sb.from('employes').update({nom,code}).eq('id',editEmpId);}
-  else await sb.from('employes').insert({id:Date.now().toString(),nom,code});
-  closeModal('modal-emp');
-  await loadAll(true);
+  if(editEmpId){await sb.from('employes').update({nom,tel,code}).eq('id',editEmpId);}
+  else await sb.from('employes').insert({id:Date.now().toString(),nom,tel,code});
+  closeModal('modal-emp');await loadAll(true);
 }
 
-async function delEmp(id){
-  await sb.from('employes').delete().eq('id',id);
-  await loadAll(true);
+async function delEmp(id){await sb.from('employes').delete().eq('id',id);await loadAll(true);}
+
+function openVehModal(id){
+  editVehId=id;
+  document.getElementById('mv-title').textContent=id?'Modifier le véhicule':'Nouveau véhicule';
+  if(id){const v=vehicules.find(x=>x.id===id);document.getElementById('v-marque').value=v.marque||'';document.getElementById('v-modele').value=v.modele||'';document.getElementById('v-immat').value=v.immat||'';document.getElementById('v-couleur').value=v.couleur||'';}
+  else{['v-marque','v-modele','v-immat','v-couleur'].forEach(i=>document.getElementById(i).value='');}
+  document.getElementById('verr').style.display='none';
+  document.getElementById('modal-veh').classList.add('open');
 }
+
+async function saveVeh(){
+  const marque=document.getElementById('v-marque').value.trim();
+  const modele=document.getElementById('v-modele').value.trim();
+  const immat=document.getElementById('v-immat').value.trim();
+  const couleur=document.getElementById('v-couleur').value.trim();
+  if(!marque||!modele){document.getElementById('verr').style.display='block';return;}
+  if(editVehId){await sb.from('vehicules').update({marque,modele,immat,couleur}).eq('id',editVehId);}
+  else await sb.from('vehicules').insert({id:Date.now().toString(),marque,modele,immat,couleur});
+  closeModal('modal-veh');await loadAll(true);
+}
+
+async function delVeh(id){await sb.from('vehicules').delete().eq('id',id);await loadAll(true);}
 
 function closeModal(id){document.getElementById(id).classList.remove('open')}
 
@@ -499,22 +678,30 @@ function renderEmpView(){
   if(!list.length){el.innerHTML='<div class="empty">Aucun trajet</div>';return;}
   el.innerHTML=list.map(t=>{
     const emp=employes.find(e=>e.id===t.emp_id);
-    const cli=clients.find(c=>c.id===t.client_id);
+    const veh=vehicules.find(v=>v.id===t.vehicule_id);
+    const stopsData=t.stops||[];
     const termine=t.statut==='termine';
     return`<div class="tcard${termine?' termine':''}">
       <div class="tcard-head">
-        <div><div class="tcard-datetime">${fmtDate(t.date)} · ${t.heure}</div><div class="tcard-emp">${emp?emp.nom:'—'}</div></div>
+        <div>
+          <div class="tcard-datetime">${fmtDate(t.date)} · ${t.heure}</div>
+          <div class="tcard-emp">${emp?emp.nom:'—'}${veh?' · 🚗 '+veh.marque+' '+veh.modele:''}</div>
+        </div>
         <span class="status-tag ${termine?'status-termine':'status-afaire'}">${termine?'✓ Terminé':'À faire'}</span>
       </div>
-      <div class="tcard-grid">
-        <div><div class="tlabel">Client</div><div class="tval">${cli?cli.nom:'—'}</div></div>
-        <div style="grid-column:1/-1;display:flex;align-items:flex-start;gap:10px">
-          <div style="flex:1"><div class="tlabel">Départ</div><div class="tval">${t.depart}</div></div>
-          <div style="color:var(--text3);margin-top:16px">→</div>
-          <div style="flex:1"><div class="tlabel">Arrivée</div><div class="tval">${t.arrivee}</div></div>
-        </div>
-        ${t.note?`<div class="tcard-note">${t.note}</div>`:''}
+      <div style="margin-bottom:10px">
+        ${stopsData.map((s,i)=>{
+          const cli=clients.find(c=>c.id===s.client_id);
+          return`<div class="client-stop">
+            <div class="client-stop-head">
+              <span class="client-stop-nom">${cli?cli.nom:'Client '+(i+1)}${s.retour?' ↩':''}</span>
+              ${cli&&cli.tel?`<a href="tel:${cli.tel}" class="btn btn-blue btn-sm" style="text-decoration:none">📞 Appeler</a>`:''}
+            </div>
+            <div style="font-size:12px;color:var(--text2)">${s.depart||''} → ${s.arrivee||''}</div>
+          </div>`;
+        }).join('')}
       </div>
+      ${t.note?`<div class="tcard-note" style="margin-bottom:10px">${t.note}</div>`:''}
       ${!termine?`<div class="tcard-actions"><button class="btn btn-green" style="width:100%" onclick="validerTrajet('${t.id}')">✓ Trajet effectué</button></div>`:''}
     </div>`;
   }).join('');
