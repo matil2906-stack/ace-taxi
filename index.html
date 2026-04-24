@@ -206,10 +206,6 @@
     <div class="field"><label>Date</label><input type="date" id="f-date"></div>
     <div class="field"><label>Employé</label><select id="f-employe"><option value="">-- Choisir --</option></select></div>
     <div class="field"><label>Véhicule</label><select id="f-vehicule"><option value="">-- Choisir --</option></select></div>
-    <div class="ar-toggle">
-      <input type="checkbox" id="f-ar" onchange="toggleAR()">
-      <span>🔄 Trajet aller-retour</span>
-    </div>
     <div class="section-title">Clients</div>
     <div id="stops-container"></div>
     <button class="btn btn-sm" style="margin:8px 0;width:100%" onclick="addStop()">+ Ajouter un client</button>
@@ -374,7 +370,6 @@ function updateSelects(){
 }
 
 function renderStopsInModal(){
-  const isAR=document.getElementById('f-ar').checked;
   document.getElementById('stops-container').innerHTML=stops.map((s,i)=>`
     <div class="stop-block">
       <div class="stop-block-head">
@@ -396,11 +391,15 @@ function renderStopsInModal(){
         <label>Adresse de départ</label>
         <input type="text" value="${s.depart||''}" placeholder="Adresse de départ" oninput="stops[${i}].depart=this.value">
       </div>
-      <div class="field" style="margin-bottom:${isAR?'8px':'0'}">
+      <div class="field" style="margin-bottom:8px">
         <label>Adresse d'arrivée</label>
         <input type="text" value="${s.arrivee||''}" placeholder="Adresse d'arrivée" oninput="stops[${i}].arrivee=this.value">
       </div>
-      ${isAR?`<div class="field" style="margin-bottom:0">
+      <div class="ar-toggle" style="margin-bottom:${s.aller_retour?'8px':'0'};padding:8px 10px">
+        <input type="checkbox" ${s.aller_retour?'checked':''} onchange="stops[${i}].aller_retour=this.checked;stops[${i}].redeposer='';renderStopsInModal()">
+        <span style="font-size:13px">🔄 Aller-retour</span>
+      </div>
+      ${s.aller_retour?`<div class="field" style="margin-bottom:0">
         <label>Adresse où redéposer le client</label>
         <input type="text" value="${s.redeposer||''}" placeholder="ex : Domicile, Hôpital..." oninput="stops[${i}].redeposer=this.value">
       </div>`:''}
@@ -416,9 +415,9 @@ function prefillStop(i){
   }
 }
 
-function addStop(){stops.push({client_id:'',depart:'',arrivee:'',heure_depart:'',heure_arrivee:'',redeposer:'',statut:'attente'});renderStopsInModal();}
+function addStop(){stops.push({client_id:'',depart:'',arrivee:'',heure_depart:'',heure_arrivee:'',redeposer:'',aller_retour:false,statut:'attente'});renderStopsInModal();}
 function removeStop(i){stops.splice(i,1);renderStopsInModal();}
-function toggleAR(){renderStopsInModal();}
+
 
 function renderStopCard(s,i,isPatron){
   const cli=clients.find(c=>c.id===s.client_id);
@@ -542,14 +541,14 @@ function openTrajetModal(id){
     document.getElementById('f-date').value=t.date||'';
     document.getElementById('f-employe').value=t.emp_id||'';
     document.getElementById('f-vehicule').value=t.vehicule_id||'';
-    document.getElementById('f-ar').checked=t.aller_retour||false;
+    
     document.getElementById('f-note').value=t.note||'';
     stops=t.stops?JSON.parse(JSON.stringify(t.stops)):[];
   }else{
     ['f-date','f-note'].forEach(i=>document.getElementById(i).value='');
     document.getElementById('f-employe').value='';
     document.getElementById('f-vehicule').value='';
-    document.getElementById('f-ar').checked=false;
+    
     stops=[{client_id:'',depart:'',arrivee:'',heure_depart:'',heure_arrivee:'',redeposer:'',statut:'attente'}];
   }
   renderStopsInModal();
@@ -561,7 +560,7 @@ async function saveTrajet(){
   const date=document.getElementById('f-date').value;
   const emp_id=document.getElementById('f-employe').value;
   const vehicule_id=document.getElementById('f-vehicule').value;
-  const aller_retour=document.getElementById('f-ar').checked;
+  
   const note=document.getElementById('f-note').value.trim();
   if(!date||!emp_id||stops.length===0||stops.some(s=>!s.client_id)){
     document.getElementById('terr').style.display='block';return;
@@ -569,9 +568,9 @@ async function saveTrajet(){
   const finalStops=stops.map(s=>({...s,statut:s.statut||'attente'}));
   setSS('p','loading','Sauvegarde...');
   if(editTrajetId){
-    await sb.from('trajets').update({date,emp_id,vehicule_id,aller_retour,stops:finalStops,note,heure:finalStops[0]?.heure_depart||''}).eq('id',editTrajetId);
+    await sb.from('trajets').update({date,emp_id,vehicule_id,stops:finalStops,note,heure:finalStops[0]?.heure_depart||''}).eq('id',editTrajetId);
   }else{
-    await sb.from('trajets').insert({id:Date.now().toString(),date,emp_id,vehicule_id,aller_retour,stops:finalStops,note,heure:finalStops[0]?.heure_depart||'',statut:'afaire',created_at:Date.now()});
+    await sb.from('trajets').insert({id:Date.now().toString(),date,emp_id,vehicule_id,stops:finalStops,note,heure:finalStops[0]?.heure_depart||'',statut:'afaire',created_at:Date.now()});
   }
   closeModal('modal-trajet');await loadAll(true);
 }
@@ -679,7 +678,7 @@ function renderEmpView(){
       ${stopsData.map((s,si)=>{
         const cli=clients.find(c=>c.id===s.client_id);
         const st=s.statut||'attente';
-        const isAR=!!s.redeposer;
+        const isAR=s.aller_retour||!!s.redeposer;
         let btns='';
         if(st==='attente')btns=`<button class="btn btn-orange btn-sm" style="width:100%;margin-top:8px" onclick="updateStopStatut('${t.id}',${si},'pris')">🚗 Pris en charge</button>`;
         else if(st==='pris')btns=`<button class="btn btn-blue btn-sm" style="width:100%;margin-top:8px" onclick="updateStopStatut('${t.id}',${si},'arrive')">📍 Arrivé à l'adresse</button>`;
