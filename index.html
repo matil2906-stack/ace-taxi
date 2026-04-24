@@ -11,7 +11,7 @@
   <title>ACE TAXI</title>
   <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600&family=DM+Mono:wght@400;500&display=swap" rel="stylesheet">
   <style>
-    :root{--bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#242424;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0f0f0;--text2:#888;--text3:#444;--accent:#f5c842;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--radius:14px;--radius-sm:8px}
+    :root{--bg:#0f0f0f;--bg2:#1a1a1a;--bg3:#242424;--border:rgba(255,255,255,0.08);--border2:rgba(255,255,255,0.15);--text:#f0f0f0;--text2:#888;--text3:#444;--accent:#f5c842;--green:#4ade80;--red:#f87171;--blue:#60a5fa;--orange:#fb923c;--radius:14px;--radius-sm:8px}
     *{box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
     html,body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
     .screen{display:none;min-height:100vh;padding-bottom:60px}
@@ -37,9 +37,7 @@
     .tbtn{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:7px 12px;font-size:12px;color:var(--text2);cursor:pointer;font-family:'DM Sans',sans-serif}
     .sync-bar{display:flex;align-items:center;gap:8px;padding:7px 16px;background:var(--bg2);border-bottom:1px solid var(--border);font-size:12px;color:var(--text2)}
     .sdot{width:7px;height:7px;border-radius:50%;background:var(--text3);flex-shrink:0}
-    .sdot.ok{background:var(--green)}
-    .sdot.loading{background:var(--accent);animation:pulse 1s infinite}
-    .sdot.err{background:var(--red)}
+    .sdot.ok{background:var(--green)}.sdot.loading{background:var(--accent);animation:pulse 1s infinite}.sdot.err{background:var(--red)}
     @keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
     .tabs{display:flex;gap:4px;padding:10px 8px;border-bottom:1px solid var(--border);overflow-x:auto}
     .tab{flex:1;padding:8px 4px;border-radius:var(--radius-sm);border:1px solid transparent;font-size:12px;font-weight:500;cursor:pointer;background:transparent;color:var(--text2);font-family:'DM Sans',sans-serif;transition:all 0.15s;white-space:nowrap;min-width:60px}
@@ -51,10 +49,10 @@
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 14px;border-radius:var(--radius-sm);font-size:13px;font-weight:500;cursor:pointer;border:1px solid var(--border);background:var(--bg2);color:var(--text2);font-family:'DM Sans',sans-serif;transition:all 0.15s}
     .btn:active{transform:scale(0.97)}
     .btn-accent{background:var(--accent);color:#0f0f0f;border-color:transparent;font-weight:600}
-    .btn-accent:active{opacity:0.85}
     .btn-danger{border-color:rgba(248,113,113,0.3);color:var(--red)}
     .btn-green{background:rgba(74,222,128,0.12);border-color:rgba(74,222,128,0.3);color:var(--green);font-weight:600}
     .btn-blue{background:rgba(96,165,250,0.12);border-color:rgba(96,165,250,0.3);color:var(--blue);font-weight:600}
+    .btn-orange{background:rgba(251,146,60,0.12);border-color:rgba(251,146,60,0.3);color:var(--orange);font-weight:600}
     .btn-sm{padding:5px 10px;font-size:12px}
     .filters{display:flex;gap:8px;padding:0 14px 10px;flex-wrap:wrap}
     .filters input,.filters select{flex:1;min-width:100px;background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text);font-family:'DM Sans',sans-serif;outline:none}
@@ -64,22 +62,20 @@
     .list{padding:0 14px;display:flex;flex-direction:column;gap:8px}
     .tcard{background:var(--bg2);border:1px solid var(--border);border-radius:var(--radius);padding:14px;transition:all 0.3s}
     .tcard.termine{opacity:0.35;filter:grayscale(1)}
-    .tcard.aller-retour{border-left:3px solid var(--blue)}
     .tcard-head{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px}
     .tcard-datetime{font-size:14px;font-weight:600}
-    .tcard-emp{font-size:12px;color:var(--text2);margin-top:2px}
+    .tcard-sub{font-size:12px;color:var(--text2);margin-top:2px}
     .status-tag{font-size:11px;padding:3px 8px;border-radius:20px;font-family:'DM Mono',monospace;font-weight:500;white-space:nowrap}
     .status-afaire{background:rgba(245,200,66,0.15);color:var(--accent)}
+    .status-encours{background:rgba(251,146,60,0.15);color:var(--orange)}
     .status-termine{background:rgba(100,100,100,0.2);color:var(--text3)}
-    .tcard-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:10px}
-    .tlabel{font-size:11px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:2px}
-    .tval{font-size:13px;color:var(--text)}
-    .tcard-note{grid-column:1/-1;background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text2)}
-    .tcard-actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:10px}
-    .client-stop{background:var(--bg3);border-radius:var(--radius-sm);padding:10px;margin-bottom:6px}
+    .client-stop{background:var(--bg3);border-radius:var(--radius-sm);padding:10px;margin-bottom:6px;border-left:3px solid var(--border2)}
+    .client-stop.statut-pris{border-left-color:var(--orange)}
+    .client-stop.statut-arrive{border-left-color:var(--blue)}
+    .client-stop.statut-termine{border-left-color:var(--green);opacity:0.5}
     .client-stop-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
     .client-stop-nom{font-size:13px;font-weight:600}
-    .retour-tag{background:rgba(96,165,250,0.12);color:var(--blue);font-size:10px;padding:2px 6px;border-radius:10px;font-family:'DM Mono',monospace}
+    .stop-statut-tag{font-size:10px;padding:2px 7px;border-radius:10px;font-family:'DM Mono',monospace;font-weight:500}
     .item-row{display:flex;align-items:center;justify-content:space-between;padding:12px 14px;border-bottom:1px solid var(--border)}
     .item-row:last-child{border-bottom:none}
     .avatar{width:38px;height:38px;border-radius:50%;background:rgba(245,200,66,0.15);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:600;color:var(--accent);flex-shrink:0;font-family:'DM Mono',monospace}
@@ -109,7 +105,9 @@
     .ar-toggle{display:flex;align-items:center;gap:8px;padding:10px 14px;background:var(--bg3);border-radius:var(--radius-sm);margin-bottom:12px;cursor:pointer}
     .ar-toggle input{width:18px;height:18px;cursor:pointer;accent-color:var(--blue)}
     .ar-toggle span{font-size:14px;color:var(--text)}
-    .section-title{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;padding:12px 14px 4px;margin-top:4px}
+    .section-title{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;padding:12px 0 6px}
+    .time-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
+    .time-grid .field{margin-bottom:0}
   </style>
 </head>
 <body>
@@ -118,8 +116,9 @@
   <div class="login-wrap">
     <div class="login-logo">
       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#0f0f0f" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="1" y="3" width="15" height="13" rx="2"/><path d="M16 8h4l3 3v5h-7V8z"/>
-        <circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/>
+        <path d="M5 17H3a2 2 0 01-2-2V9a2 2 0 012-2h1l2-3h10l2 3h1a2 2 0 012 2v6a2 2 0 01-2 2h-2"/>
+        <circle cx="7" cy="17" r="2"/><circle cx="17" cy="17" r="2"/>
+        <path d="M9 7l-1 3h8l-1-3"/>
       </svg>
     </div>
     <p class="login-title">ACE TAXI</p>
@@ -130,7 +129,7 @@
       <p class="login-err" id="lerr">Code incorrect</p>
       <button class="login-btn" onclick="doLogin()">Se connecter</button>
     </div>
-    <p class="login-hint">Patron : code <span style="color:var(--accent);font-family:'DM Mono',monospace">1</span></p>
+    
   </div>
 </div>
 
@@ -149,7 +148,6 @@
     <button class="tab" id="tb-employes" onclick="switchTab('employes')">Employés</button>
     <button class="tab" id="tb-vehicules" onclick="switchTab('vehicules')">Véhicules</button>
   </div>
-
   <div id="tab-planning">
     <div class="stats">
       <div class="stat"><div class="stat-val" id="st-total">0</div><div class="stat-lbl">Total</div></div>
@@ -162,23 +160,21 @@
       <select id="fs" onchange="renderTrajets()">
         <option value="">Tous statuts</option>
         <option value="afaire">À faire</option>
+        <option value="encours">En cours</option>
         <option value="termine">Terminés</option>
       </select>
     </div>
     <div class="add-row"><button class="btn btn-accent" onclick="openTrajetModal(null)">+ Nouveau trajet</button></div>
     <div class="list" id="list-patron"></div>
   </div>
-
   <div id="tab-clients" style="display:none">
     <div class="add-row" style="padding-top:14px"><button class="btn btn-accent" onclick="openClientModal(null)">+ Ajouter un client</button></div>
     <div class="section-card" id="list-clients"></div>
   </div>
-
   <div id="tab-employes" style="display:none">
     <div class="add-row" style="padding-top:14px"><button class="btn btn-accent" onclick="openEmpModal(null)">+ Ajouter un employé</button></div>
     <div class="section-card" id="list-emps"></div>
   </div>
-
   <div id="tab-vehicules" style="display:none">
     <div class="add-row" style="padding-top:14px"><button class="btn btn-accent" onclick="openVehModal(null)">+ Ajouter un véhicule</button></div>
     <div class="section-card" id="list-vehs"></div>
@@ -208,19 +204,15 @@
     <div class="modal-handle"></div>
     <h3 id="mt-title">Nouveau trajet</h3>
     <div class="field"><label>Date</label><input type="date" id="f-date"></div>
-    <div class="field"><label>Heure</label><input type="time" id="f-heure"></div>
     <div class="field"><label>Employé</label><select id="f-employe"><option value="">-- Choisir --</option></select></div>
     <div class="field"><label>Véhicule</label><select id="f-vehicule"><option value="">-- Choisir --</option></select></div>
     <div class="ar-toggle">
       <input type="checkbox" id="f-ar" onchange="toggleAR()">
       <span>🔄 Trajet aller-retour</span>
     </div>
-    <div id="ar-depot-block" style="display:none">
-      <div class="field"><label>Adresse où redéposer le client</label><input type="text" id="f-depot" placeholder="ex : Hôpital, domicile..."></div>
-    </div>
     <div class="section-title">Clients</div>
     <div id="stops-container"></div>
-    <button class="btn btn-sm" style="margin:8px 0;width:100%" onclick="addStop(false)">+ Ajouter un client</button>
+    <button class="btn btn-sm" style="margin:8px 0;width:100%" onclick="addStop()">+ Ajouter un client</button>
     <div class="field"><label>Note</label><input type="text" id="f-note" placeholder="Optionnel"></div>
     <p class="modal-err" id="terr">Remplissez tous les champs obligatoires</p>
     <div class="modal-actions">
@@ -309,16 +301,11 @@ async function loadAll(isPatron){
       sb.from('clients').select('*'),
       sb.from('vehicules').select('*')
     ]);
-    trajets=rt.data||[];
-    employes=re.data||[];
-    clients=rc.data||[];
-    vehicules=rv.data||[];
+    trajets=rt.data||[];employes=re.data||[];clients=rc.data||[];vehicules=rv.data||[];
     setSS(role,'ok','Synchronisé · '+new Date().toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'}));
     if(isPatron)renderAll();
     else{checkNouveaux(currentEmp);renderEmpView();}
-  }catch(e){
-    setSS(role,'err','Erreur de connexion');
-  }
+  }catch(e){setSS(role,'err','Erreur de connexion');}
 }
 
 function show(id){document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));document.getElementById(id).classList.add('active')}
@@ -328,17 +315,11 @@ async function doLogin(){
   try{const{data}=await sb.from('employes').select('*');employes=data||[];}catch(e){}
   const pwd=document.getElementById('lpwd').value.trim();
   document.getElementById('lerr').style.display='none';
-  if(pwd==='1'){
-    currentRole='patron';show('s-patron');loadAll(true);
-  }else{
+  if(pwd==='1'){currentRole='patron';show('s-patron');loadAll(true);}
+  else{
     const emp=employes.find(e=>e.code===pwd);
-    if(emp){
-      currentRole='employe';currentEmp=emp;
-      document.getElementById('emp-badge').textContent=emp.nom;
-      show('s-employe');loadAll(false);
-    }else{
-      document.getElementById('lerr').style.display='block';
-    }
+    if(emp){currentRole='employe';currentEmp=emp;document.getElementById('emp-badge').textContent=emp.nom;show('s-employe');loadAll(false);}
+    else{document.getElementById('lerr').style.display='block';}
   }
 }
 document.getElementById('lpwd').addEventListener('keydown',e=>{if(e.key==='Enter')doLogin()});
@@ -367,9 +348,13 @@ function fmtDate(d){
   return`${jours[new Date(+y,+m-1,+j).getDay()]} ${j}/${m}/${y}`;
 }
 function initials(n){return n.split(' ').map(w=>w[0]||'').join('').toUpperCase().slice(0,2)}
-function callBtn(tel,label){
-  if(!tel)return'';
-  return`<a href="tel:${tel}" class="btn btn-blue btn-sm" style="text-decoration:none">📞 ${label}</a>`;
+
+function stopStatutTag(s){
+  if(!s||s==='attente')return'<span class="stop-statut-tag status-afaire">En attente</span>';
+  if(s==='pris')return'<span class="stop-statut-tag status-encours">🚗 Pris en charge</span>';
+  if(s==='arrive')return'<span class="stop-statut-tag" style="background:rgba(96,165,250,0.15);color:var(--blue)">📍 Arrivé</span>';
+  if(s==='termine')return'<span class="stop-statut-tag status-termine">✓ Terminé</span>';
+  return'';
 }
 
 function updateStats(){
@@ -385,16 +370,15 @@ function updateSelects(){
   const fe2=document.getElementById('f-employe');const ce=fe2.value;
   fe2.innerHTML='<option value="">-- Choisir --</option>'+employes.map(e=>`<option value="${e.id}"${e.id===ce?' selected':''}>${e.nom}</option>`).join('');
   const fv=document.getElementById('f-vehicule');const cv2=fv.value;
-  fv.innerHTML='<option value="">-- Choisir --</option>'+vehicules.map(v=>`<option value="${v.id}"${v.id===cv2?' selected':''}>${v.marque} ${v.modele} ${v.immat?'('+v.immat+')':''}</option>`).join('');
+  fv.innerHTML='<option value="">-- Choisir --</option>'+vehicules.map(v=>`<option value="${v.id}"${v.id===cv2?' selected':''}>${v.marque} ${v.modele}${v.immat?' ('+v.immat+')':''}</option>`).join('');
 }
 
 function renderStopsInModal(){
-  const container=document.getElementById('stops-container');
   const isAR=document.getElementById('f-ar').checked;
-  container.innerHTML=stops.map((s,i)=>`
+  document.getElementById('stops-container').innerHTML=stops.map((s,i)=>`
     <div class="stop-block">
       <div class="stop-block-head">
-        <span>${isAR&&i>=stops.length/2?'↩ Retour — ':''}Client ${i+1}</span>
+        <span>Client ${i+1}</span>
         ${stops.length>1?`<button class="btn btn-danger btn-sm" onclick="removeStop(${i})">✕</button>`:''}
       </div>
       <div class="field" style="margin-bottom:8px">
@@ -404,14 +388,22 @@ function renderStopsInModal(){
           ${clients.map(c=>`<option value="${c.id}"${c.id===s.client_id?' selected':''}>${c.nom}</option>`).join('')}
         </select>
       </div>
+      <div class="time-grid">
+        <div class="field"><label>Heure départ</label><input type="time" value="${s.heure_depart||''}" oninput="stops[${i}].heure_depart=this.value"></div>
+        <div class="field"><label>Heure arrivée</label><input type="time" value="${s.heure_arrivee||''}" oninput="stops[${i}].heure_arrivee=this.value"></div>
+      </div>
       <div class="field" style="margin-bottom:8px">
-        <label>Départ</label>
+        <label>Adresse de départ</label>
         <input type="text" value="${s.depart||''}" placeholder="Adresse de départ" oninput="stops[${i}].depart=this.value">
       </div>
-      <div class="field" style="margin-bottom:0">
-        <label>Arrivée</label>
+      <div class="field" style="margin-bottom:${isAR?'8px':'0'}">
+        <label>Adresse d'arrivée</label>
         <input type="text" value="${s.arrivee||''}" placeholder="Adresse d'arrivée" oninput="stops[${i}].arrivee=this.value">
       </div>
+      ${isAR?`<div class="field" style="margin-bottom:0">
+        <label>Adresse où redéposer le client</label>
+        <input type="text" value="${s.redeposer||''}" placeholder="ex : Domicile, Hôpital..." oninput="stops[${i}].redeposer=this.value">
+      </div>`:''}
     </div>`).join('');
 }
 
@@ -424,20 +416,27 @@ function prefillStop(i){
   }
 }
 
-function addStop(isRetour){
-  stops.push({client_id:'',depart:'',arrivee:'',retour:isRetour});
-  renderStopsInModal();
-}
+function addStop(){stops.push({client_id:'',depart:'',arrivee:'',heure_depart:'',heure_arrivee:'',redeposer:'',statut:'attente'});renderStopsInModal();}
+function removeStop(i){stops.splice(i,1);renderStopsInModal();}
+function toggleAR(){renderStopsInModal();}
 
-function removeStop(i){
-  stops.splice(i,1);
-  renderStopsInModal();
-}
-
-function toggleAR(){
-  const isAR=document.getElementById('f-ar').checked;
-  document.getElementById('ar-depot-block').style.display=isAR?'block':'none';
-  renderStopsInModal();
+function renderStopCard(s,i,isPatron){
+  const cli=clients.find(c=>c.id===s.client_id);
+  const st=s.statut||'attente';
+  const isAR=s.redeposer;
+  return`<div class="client-stop statut-${st==='pris'?'pris':st==='arrive'?'arrive':st==='termine'?'termine':''}">
+    <div class="client-stop-head">
+      <span class="client-stop-nom">${cli?cli.nom:'Client '+(i+1)}</span>
+      <div style="display:flex;gap:4px;align-items:center">
+        ${stopStatutTag(st)}
+        ${cli&&cli.tel?`<a href="tel:${cli.tel}" class="btn btn-blue btn-sm" style="text-decoration:none">📞</a>`:''}
+      </div>
+    </div>
+    <div style="font-size:12px;color:var(--text2);margin-bottom:${!isPatron&&st!=='termine'?'8px':'0'}">
+      ${s.heure_depart?s.heure_depart+' ':''}${s.depart||''}${s.depart&&s.arrivee?' → ':''}${s.arrivee||''}${s.heure_arrivee?' (arr. '+s.heure_arrivee+')':''}
+      ${isAR&&st==='arrive'?`<div style="margin-top:4px">↩ Redéposer à : ${s.redeposer}</div>`:''}
+    </div>
+  </div>`;
 }
 
 function renderTrajets(){
@@ -453,35 +452,22 @@ function renderTrajets(){
     const veh=vehicules.find(v=>v.id===t.vehicule_id);
     const stopsData=t.stops||[];
     const termine=t.statut==='termine';
-    const isAR=t.aller_retour;
-    return`<div class="tcard${termine?' termine':''}${isAR?' aller-retour':''}">
+    const encours=t.statut==='encours';
+    return`<div class="tcard${termine?' termine':''}">
       <div class="tcard-head">
         <div>
-          <div class="tcard-datetime">${fmtDate(t.date)} · ${t.heure}</div>
-          <div class="tcard-emp">${emp?emp.nom:'—'}${veh?' · 🚗 '+veh.marque+' '+veh.modele:''}</div>
+          <div class="tcard-datetime">${fmtDate(t.date)}</div>
+          <div class="tcard-sub">${emp?emp.nom:'—'}${veh?' · 🚗 '+veh.marque+' '+veh.modele:''}</div>
         </div>
         <div style="display:flex;flex-direction:column;align-items:flex-end;gap:4px">
-          <span class="status-tag ${termine?'status-termine':'status-afaire'}">${termine?'✓ Terminé':'À faire'}</span>
-          ${isAR?'<span class="retour-tag">↩ A/R</span>':''}
+          <span class="status-tag ${termine?'status-termine':encours?'status-encours':'status-afaire'}">${termine?'✓ Terminé':encours?'🚗 En cours':'À faire'}</span>
+          ${t.aller_retour?'<span style="font-size:10px;color:var(--blue)">↩ A/R</span>':''}
         </div>
       </div>
-      <div style="margin-bottom:10px">
-        ${stopsData.map((s,i)=>{
-          const cli=clients.find(c=>c.id===s.client_id);
-          return`<div class="client-stop">
-            <div class="client-stop-head">
-              <span class="client-stop-nom">${cli?cli.nom:'Client '+(i+1)}</span>
-              <div style="display:flex;gap:4px">
-                ${cli&&cli.tel?callBtn(cli.tel,'Appeler'):''}
-              </div>
-            </div>
-            <div style="font-size:12px;color:var(--text2)">${s.depart||''}${s.depart&&s.arrivee?' → ':''}${s.arrivee||''}</div>
-          </div>`;
-        }).join('')}
-      </div>
-      ${t.note?`<div class="tcard-note">${t.note}</div>`:''}
-      <div class="tcard-actions" style="margin-top:8px">
-        ${emp&&emp.tel?callBtn(emp.tel,'Appeler chauffeur'):''}
+      <div style="margin-bottom:8px">${stopsData.map((s,i)=>renderStopCard(s,i,true)).join('')}</div>
+      ${t.note?`<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text2);margin-bottom:8px">${t.note}</div>`:''}
+      <div style="display:flex;gap:6px;flex-wrap:wrap">
+        ${emp&&emp.tel?`<a href="tel:${emp.tel}" class="btn btn-blue btn-sm" style="text-decoration:none">📞 Chauffeur</a>`:''}
         <button class="btn btn-sm" onclick="openTrajetModal('${t.id}')">Modifier</button>
         <button class="btn btn-danger btn-sm" onclick="delTrajet('${t.id}')">Supprimer</button>
       </div>
@@ -499,7 +485,7 @@ function renderClients(){
         <div class="item-nom">${c.nom}</div>
         <div class="item-sub">${c.tel||'Pas de tél'}</div>
         ${c.adr?`<div style="font-size:11px;color:var(--text3);margin-top:2px">🏠 ${c.adr}</div>`:''}
-        ${c.dest?`<div style="font-size:11px;color:var(--text3);margin-top:1px">📍 ${c.dest}</div>`:''}
+        ${c.dest?`<div style="font-size:11px;color:var(--text3)">📍 ${c.dest}</div>`:''}
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
         ${c.tel?`<a href="tel:${c.tel}" class="btn btn-blue btn-sm" style="text-decoration:none">📞</a>`:''}
@@ -518,7 +504,7 @@ function renderEmps(){
       <div class="item-info">
         <div class="item-nom">${e.nom}</div>
         <div class="item-sub">Code : ${e.code}</div>
-        ${e.tel?`<div style="font-size:11px;color:var(--text3);margin-top:2px">📞 ${e.tel}</div>`:''}
+        ${e.tel?`<div style="font-size:11px;color:var(--text3)">📞 ${e.tel}</div>`:''}
       </div>
       <div style="display:flex;flex-direction:column;gap:4px;align-items:flex-end">
         ${e.tel?`<a href="tel:${e.tel}" class="btn btn-blue btn-sm" style="text-decoration:none">📞</a>`:''}
@@ -536,7 +522,7 @@ function renderVehs(){
       <div class="avatar avatar-green">🚗</div>
       <div class="item-info">
         <div class="item-nom">${v.marque} ${v.modele}</div>
-        <div class="item-sub">${v.immat||'Pas d\'immat'} ${v.couleur?'· '+v.couleur:''}</div>
+        <div class="item-sub">${v.immat||'—'} ${v.couleur?'· '+v.couleur:''}</div>
       </div>
       <div style="display:flex;gap:6px">
         <button class="btn btn-sm" onclick="openVehModal('${v.id}')">Modifier</button>
@@ -553,23 +539,18 @@ function openTrajetModal(id){
   updateSelects();
   if(id){
     const t=trajets.find(x=>x.id===id);
-    document.getElementById('f-date').value=t.date;
-    document.getElementById('f-heure').value=t.heure;
+    document.getElementById('f-date').value=t.date||'';
     document.getElementById('f-employe').value=t.emp_id||'';
     document.getElementById('f-vehicule').value=t.vehicule_id||'';
     document.getElementById('f-ar').checked=t.aller_retour||false;
-    document.getElementById('ar-depot-block').style.display=(t.aller_retour?'block':'none');
-    document.getElementById('f-depot').value=t.depot||'';
     document.getElementById('f-note').value=t.note||'';
     stops=t.stops?JSON.parse(JSON.stringify(t.stops)):[];
   }else{
-    ['f-date','f-heure','f-note'].forEach(i=>document.getElementById(i).value='');
+    ['f-date','f-note'].forEach(i=>document.getElementById(i).value='');
     document.getElementById('f-employe').value='';
     document.getElementById('f-vehicule').value='';
     document.getElementById('f-ar').checked=false;
-    document.getElementById('ar-depot-block').style.display='none';
-    document.getElementById('f-depot').value='';
-    stops=[{client_id:'',depart:'',arrivee:''}];
+    stops=[{client_id:'',depart:'',arrivee:'',heure_depart:'',heure_arrivee:'',redeposer:'',statut:'attente'}];
   }
   renderStopsInModal();
   document.getElementById('terr').style.display='none';
@@ -578,28 +559,21 @@ function openTrajetModal(id){
 
 async function saveTrajet(){
   const date=document.getElementById('f-date').value;
-  const heure=document.getElementById('f-heure').value;
   const emp_id=document.getElementById('f-employe').value;
   const vehicule_id=document.getElementById('f-vehicule').value;
   const aller_retour=document.getElementById('f-ar').checked;
   const note=document.getElementById('f-note').value.trim();
-  if(!date||!heure||!emp_id||stops.length===0||stops.some(s=>!s.client_id||!s.depart||!s.arrivee)){
+  if(!date||!emp_id||stops.length===0||stops.some(s=>!s.client_id)){
     document.getElementById('terr').style.display='block';return;
   }
-  const depot=document.getElementById('f-depot').value.trim();
-  let finalStops=[...stops];
-  if(aller_retour){
-    const retours=stops.map(s=>({client_id:s.client_id,depart:depot||s.arrivee,arrivee:s.depart,retour:true}));
-    finalStops=[...stops,...retours];
-  }
+  const finalStops=stops.map(s=>({...s,statut:s.statut||'attente'}));
   setSS('p','loading','Sauvegarde...');
   if(editTrajetId){
-    await sb.from('trajets').update({date,heure,emp_id,vehicule_id,aller_retour,depot,stops:finalStops,note}).eq('id',editTrajetId);
+    await sb.from('trajets').update({date,emp_id,vehicule_id,aller_retour,stops:finalStops,note,heure:finalStops[0]?.heure_depart||''}).eq('id',editTrajetId);
   }else{
-    await sb.from('trajets').insert({id:Date.now().toString(),date,heure,emp_id,vehicule_id,aller_retour,depot,stops:finalStops,note,statut:'afaire',created_at:Date.now()});
+    await sb.from('trajets').insert({id:Date.now().toString(),date,emp_id,vehicule_id,aller_retour,stops:finalStops,note,heure:finalStops[0]?.heure_depart||'',statut:'afaire',created_at:Date.now()});
   }
-  closeModal('modal-trajet');
-  await loadAll(true);
+  closeModal('modal-trajet');await loadAll(true);
 }
 
 async function delTrajet(id){await sb.from('trajets').delete().eq('id',id);await loadAll(true);}
@@ -668,8 +642,20 @@ async function saveVeh(){
 }
 
 async function delVeh(id){await sb.from('vehicules').delete().eq('id',id);await loadAll(true);}
-
 function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+async function updateStopStatut(trajetId,stopIdx,newStatut){
+  setSS('e','loading','Mise à jour...');
+  const trajet=trajets.find(t=>t.id===trajetId);
+  if(!trajet)return;
+  const newStops=JSON.parse(JSON.stringify(trajet.stops||[]));
+  newStops[stopIdx].statut=newStatut;
+  const allTermine=newStops.every(s=>s.statut==='termine');
+  const anyPris=newStops.some(s=>s.statut==='pris'||s.statut==='arrive');
+  const newTrajetStatut=allTermine?'termine':anyPris?'encours':'afaire';
+  await sb.from('trajets').update({stops:newStops,statut:newTrajetStatut}).eq('id',trajetId);
+  await loadAll(false);
+}
 
 function renderEmpView(){
   const fd=document.getElementById('fed').value;
@@ -681,41 +667,50 @@ function renderEmpView(){
     const veh=vehicules.find(v=>v.id===t.vehicule_id);
     const stopsData=t.stops||[];
     const termine=t.statut==='termine';
+    const encours=t.statut==='encours';
     return`<div class="tcard${termine?' termine':''}">
       <div class="tcard-head">
         <div>
-          <div class="tcard-datetime">${fmtDate(t.date)} · ${t.heure}</div>
-          <div class="tcard-emp">${emp?emp.nom:'—'}${veh?' · 🚗 '+veh.marque+' '+veh.modele:''}</div>
+          <div class="tcard-datetime">${fmtDate(t.date)}</div>
+          <div class="tcard-sub">${emp?emp.nom:'—'}${veh?' · 🚗 '+veh.marque+' '+veh.modele:''}</div>
         </div>
-        <span class="status-tag ${termine?'status-termine':'status-afaire'}">${termine?'✓ Terminé':'À faire'}</span>
+        <span class="status-tag ${termine?'status-termine':encours?'status-encours':'status-afaire'}">${termine?'✓ Terminé':encours?'🚗 En cours':'À faire'}</span>
       </div>
-      <div style="margin-bottom:10px">
-        ${stopsData.map((s,i)=>{
-          const cli=clients.find(c=>c.id===s.client_id);
-          return`<div class="client-stop">
-            <div class="client-stop-head">
-              <span class="client-stop-nom">${cli?cli.nom:'Client '+(i+1)}${s.retour?' ↩':''}</span>
-              ${cli&&cli.tel?`<a href="tel:${cli.tel}" class="btn btn-blue btn-sm" style="text-decoration:none">📞 Appeler</a>`:''}
+      ${stopsData.map((s,si)=>{
+        const cli=clients.find(c=>c.id===s.client_id);
+        const st=s.statut||'attente';
+        const isAR=!!s.redeposer;
+        let btns='';
+        if(st==='attente')btns=`<button class="btn btn-orange btn-sm" style="width:100%;margin-top:8px" onclick="updateStopStatut('${t.id}',${si},'pris')">🚗 Pris en charge</button>`;
+        else if(st==='pris')btns=`<button class="btn btn-blue btn-sm" style="width:100%;margin-top:8px" onclick="updateStopStatut('${t.id}',${si},'arrive')">📍 Arrivé à l'adresse</button>`;
+        else if(st==='arrive'&&isAR)btns=`<button class="btn btn-green btn-sm" style="width:100%;margin-top:8px" onclick="updateStopStatut('${t.id}',${si},'termine')">✓ Client redéposé</button>`;
+        else if(st==='arrive'&&!isAR)btns='';
+        return`<div class="client-stop statut-${st==='pris'?'pris':st==='arrive'?'arrive':st==='termine'?'termine':''}">
+          <div class="client-stop-head">
+            <span class="client-stop-nom">${cli?cli.nom:'Client '+(si+1)}</span>
+            <div style="display:flex;gap:4px;align-items:center">
+              ${stopStatutTag(st)}
+              ${cli&&cli.tel?`<a href="tel:${cli.tel}" class="btn btn-blue btn-sm" style="text-decoration:none">📞</a>`:''}
             </div>
-            <div style="font-size:12px;color:var(--text2)">${s.depart||''} → ${s.arrivee||''}</div>
-          </div>`;
-        }).join('')}
-      </div>
-      ${t.note?`<div class="tcard-note" style="margin-bottom:10px">${t.note}</div>`:''}
-      ${!termine?`<div class="tcard-actions"><button class="btn btn-green" style="width:100%" onclick="validerTrajet('${t.id}')">✓ Trajet effectué</button></div>`:''}
+          </div>
+          <div style="font-size:12px;color:var(--text2)">
+            ${s.heure_depart?s.heure_depart+' ':''}${s.depart||''}${s.depart&&s.arrivee?' → ':''}${s.arrivee||''}${s.heure_arrivee?' (arr. '+s.heure_arrivee+')':''}
+            ${isAR&&st==='arrive'?`<div style="margin-top:4px;color:var(--blue)">↩ Redéposer à : ${s.redeposer}</div>`:''}
+          </div>
+          ${btns}
+        </div>`;
+      }).join('')}
+      ${t.note?`<div style="background:var(--bg3);border-radius:var(--radius-sm);padding:8px 10px;font-size:13px;color:var(--text2);margin-top:8px">${t.note}</div>`:''}
     </div>`;
   }).join('');
-}
-
-async function validerTrajet(id){
-  setSS('e','loading','Envoi...');
-  await sb.from('trajets').update({statut:'termine'}).eq('id',id);
-  await loadAll(false);
 }
 
 document.querySelectorAll('.modal-bg').forEach(m=>{
   m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});
 });
+
+// Auto-update stop statut to termine when arrive and no redeposer
+const origUpdateStop=updateStopStatut;
 </script>
 </body>
 </html>
