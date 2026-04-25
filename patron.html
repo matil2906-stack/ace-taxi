@@ -548,7 +548,60 @@ document.querySelectorAll('.modal-bg').forEach(m=>{
   m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});
 });
 
-loadAll();
+// Notifications temps réel
+function setupRealtime(){
+  sb.channel('trajets-changes')
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'trajets'},payload=>{
+      const newData=payload.new;
+      const oldData=payload.old;
+      if(!newData.stops||!oldData.stops)return;
+      const newStops=newData.stops;
+      const oldStops=oldData.stops;
+      newStops.forEach((s,i)=>{
+        const oldS=oldStops[i];
+        if(!oldS)return;
+        if(s.statut!==oldS.statut){
+          const emp=employes.find(e=>e.id===newData.emp_id);
+          const cli=clients.find(c=>c.id===s.client_id);
+          const empNom=emp?emp.nom:"Un chauffeur";
+          const cliNom=cli?cli.nom:"un client";
+          let msg="";
+          if(s.statut==="pris")msg=empNom+" a pris en charge "+cliNom;
+          else if(s.statut==="arrive")msg=empNom+" est arrivé avec "+cliNom;
+          else if(s.statut==="termine")msg=empNom+" a déposé "+cliNom;
+          if(msg){
+            showNotif(msg);
+            if(Notification.permission==="granted"){
+              new Notification("ACE TAXI",{body:msg,icon:"/icône-192.png"});
+            }
+          }
+        }
+      });
+      loadAll();
+    })
+    .subscribe();
+}
+
+function showNotif(msg){
+  let banner=document.getElementById("realtime-banner");
+  if(!banner){
+    banner=document.createElement("div");
+    banner.id="realtime-banner";
+    banner.style.cssText="position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid #f5c842;border-radius:10px;padding:12px 20px;font-size:13px;color:#f5c842;z-index:999;max-width:90%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.5)";
+    document.body.appendChild(banner);
+  }
+  banner.textContent="🚗 "+msg;
+  banner.style.display="block";
+  clearTimeout(banner._timer);
+  banner._timer=setTimeout(()=>{banner.style.display="none";},5000);
+}
+
+// Demander permission notifications
+if(Notification.permission==="default"){
+  Notification.requestPermission();
+}
+
+loadAll().then(()=>setupRealtime());
 </script>
 
 <script>
