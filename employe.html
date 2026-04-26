@@ -139,7 +139,7 @@ async function registerFCMToken(empId) {
     if (permission !== 'granted') return;
     const token = await messaging.getToken({ vapidKey: VAPID_KEY });
     if (token) {
-      await sb.from('employes').update({ fcm_token: token }).eq('id', empId);
+      await sb.from('employes').update({ 'jeton fcm': token }).eq('id', empId);
     }
   } catch (e) {
     console.warn('FCM token error:', e);
@@ -150,9 +150,9 @@ async function registerFCMToken(empId) {
 async function notifyPatron(title, body) {
   try {
     // On récupère les tokens FCM des patrons (role = 'patron')
-    const { data: patrons } = await sb.from('employes').select('fcm_token').eq('role', 'patron');
+    const { data: patrons } = await sb.from('employes').select('jeton fcm').eq('rôle', 'patron');
     if (!patrons || !patrons.length) return;
-    const tokens = patrons.map(p => p.fcm_token).filter(Boolean);
+    const tokens = patrons.map(p => p['jeton fcm']).filter(Boolean);
     if (!tokens.length) return;
 
     // Appel à la Edge Function Supabase pour envoyer la notif FCM
