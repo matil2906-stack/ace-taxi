@@ -264,7 +264,7 @@ async function activerNotifs() {
       // Stocker le token du patron avec role='patron'
       const patronId = 'patron_' + (localStorage.getItem('ace_patron_id') || Date.now());
       localStorage.setItem('ace_patron_id', patronId.replace('patron_',''));
-      await sb.from('employes').upsert({ id: patronId, nom: 'Patron', code: 'PATRON_FCM', role: 'patron', fcm_token: token });
+      await sb.from('employes').upsert({ id: patronId, nom: 'Patron', code: 'PATRON_FCM', 'rôle': 'patron', 'jeton fcm': token });
       document.getElementById('notif-prompt').style.display = 'none';
       showToast('✅ Notifications activées !');
     }
@@ -299,7 +299,7 @@ async function checkNotifStatus() {
       const token = await messaging.getToken({ vapidKey: VAPID_KEY });
       const patronId = 'patron_' + (localStorage.getItem('ace_patron_id') || Date.now());
       localStorage.setItem('ace_patron_id', patronId.replace('patron_',''));
-      await sb.from('employes').upsert({ id: patronId, nom: 'Patron', code: 'PATRON_FCM', role: 'patron', fcm_token: token });
+      await sb.from('employes').upsert({ id: patronId, nom: 'Patron', code: 'PATRON_FCM', 'rôle': 'patron', 'jeton fcm': token });
     } catch(e) {}
   }
 }
@@ -384,9 +384,9 @@ function updateStats(){
 
 function updateSelects(){
   const fe=document.getElementById('fe');const cv=fe.value;
-  fe.innerHTML='<option value="">Tous employés</option>'+employes.filter(e=>e.role!=='patron').map(e=>`<option value="${e.id}"${e.id===cv?' selected':''}>${e.nom}</option>`).join('');
+  fe.innerHTML='<option value="">Tous employés</option>'+employes.filter(e=>e['rôle']!=='patron').map(e=>`<option value="${e.id}"${e.id===cv?' selected':''}>${e.nom}</option>`).join('');
   const fe2=document.getElementById('f-employe');const ce=fe2.value;
-  fe2.innerHTML='<option value="">-- Choisir --</option>'+employes.filter(e=>e.role!=='patron').map(e=>`<option value="${e.id}"${e.id===ce?' selected':''}>${e.nom}</option>`).join('');
+  fe2.innerHTML='<option value="">-- Choisir --</option>'+employes.filter(e=>e['rôle']!=='patron').map(e=>`<option value="${e.id}"${e.id===ce?' selected':''}>${e.nom}</option>`).join('');
   const fv=document.getElementById('f-vehicule');const cv2=fv.value;
   fv.innerHTML='<option value="">-- Choisir --</option>'+vehicules.map(v=>`<option value="${v.id}"${v.id===cv2?' selected':''}>${v.marque} ${v.modele}${v.immat?' ('+v.immat+')':''}</option>`).join('');
 }
@@ -494,7 +494,7 @@ function renderClients(){
 
 function renderEmps(){
   const el=document.getElementById('list-emps');
-  const list=employes.filter(e=>e.role!=='patron');
+  const list=employes.filter(e=>e['rôle']!=='patron');
   if(!list.length){el.innerHTML='<div class="empty">Aucun employé</div>';return;}
   el.innerHTML=list.map(e=>`
     <div class="item-row">
