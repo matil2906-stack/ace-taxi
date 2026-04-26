@@ -104,13 +104,65 @@
   <div class="list" id="list-employe"></div>
 </div>
 
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+// ── Firebase ──────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyCBKvI7dSauqWzeFd0KEDIMS8EJTZ5xj4Y",
+  authDomain: "ace-taxi-a60b9.firebaseapp.com",
+  projectId: "ace-taxi-a60b9",
+  storageBucket: "ace-taxi-a60b9.firebasestorage.app",
+  messagingSenderId: "390648146701",
+  appId: "1:390648146701:web:fe0280d8239e97e1e1de44"
+};
+const VAPID_KEY = "BGaWG1TDhZmzmR9_gjnbt9UVaScsts_v_J2yEVUJDidMqUYbZcGM9Rp6kuyynjpYljCZl86dnvKNQ6M98zGzYvQ";
+
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+
+// ── Supabase ──────────────────────────────────────────────
 const SURL='https://smgfzzmyuhihdiinqwkh.supabase.co';
 const SKEY='sb_publishable_8sv-Hp6AGJb7qorD8tyA4Q_RQfReBNi';
 const sb=supabase.createClient(SURL,SKEY);
+
 let trajets=[],employes=[],clients=[],vehicules=[];
 let currentEmp=null;
+
+// ── Enregistrer le token FCM de l'employé dans Supabase ──
+async function registerFCMToken(empId) {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') return;
+    const token = await messaging.getToken({ vapidKey: VAPID_KEY });
+    if (token) {
+      await sb.from('employes').update({ fcm_token: token }).eq('id', empId);
+    }
+  } catch (e) {
+    console.warn('FCM token error:', e);
+  }
+}
+
+// ── Envoyer notif au patron via Supabase Edge Function ──
+async function notifyPatron(title, body) {
+  try {
+    // On récupère les tokens FCM des patrons (role = 'patron')
+    const { data: patrons } = await sb.from('employes').select('fcm_token').eq('role', 'patron');
+    if (!patrons || !patrons.length) return;
+    const tokens = patrons.map(p => p.fcm_token).filter(Boolean);
+    if (!tokens.length) return;
+
+    // Appel à la Edge Function Supabase pour envoyer la notif FCM
+    await sb.functions.invoke('send-fcm-notification', {
+      body: { tokens, title, body }
+    });
+  } catch (e) {
+    console.warn('Notify patron error:', e);
+  }
+}
 
 function setSS(status,msg){
   document.getElementById('sdot').className='sdot '+status;
@@ -131,6 +183,7 @@ async function doLogin(){
     currentEmp=emp;
     document.getElementById('emp-badge').textContent=emp.nom;
     show('s-employe');
+    await registerFCMToken(emp.id);
     loadData();
   }else{
     document.getElementById('lerr').style.display='block';
@@ -232,6 +285,7 @@ async function updateStop(trajetId,stopIdx,newStatut){
   if(!trajet)return;
   const newStops=JSON.parse(JSON.stringify(trajet.stops||[]));
   newStops[stopIdx].statut=newStatut;
+
   // Si arrivé sans aller-retour → termine automatiquement
   if(newStatut==='arrive'&&!newStops[stopIdx].aller_retour&&!newStops[stopIdx].redeposer){
     newStops[stopIdx].statut='termine';
@@ -239,7 +293,22 @@ async function updateStop(trajetId,stopIdx,newStatut){
   const allTermine=newStops.every(s=>s.statut==='termine');
   const anyPris=newStops.some(s=>s.statut==='pris'||s.statut==='arrive');
   const newTrajetStatut=allTermine?'termine':anyPris?'encours':'afaire';
+
   await sb.from('trajets').update({stops:newStops,statut:newTrajetStatut}).eq('id',trajetId);
+
+  // ── Envoyer la notif au patron ──
+  const cli=clients.find(c=>c.id===newStops[stopIdx].client_id);
+  const cliNom=cli?cli.nom:'un client';
+  const empNom=currentEmp?currentEmp.nom:'Un chauffeur';
+  const statutFinal=newStops[stopIdx].statut;
+  const adresseDepart=newStops[stopIdx].depart||'';
+  const adresseArrivee=newStops[stopIdx].arrivee||'';
+  let notifBody='';
+  if(statutFinal==='pris')notifBody=`${empNom} a pris en charge ${cliNom}${adresseDepart?' — '+adresseDepart:''}`;
+  else if(statutFinal==='arrive')notifBody=`${empNom} est arrivé avec ${cliNom}${adresseArrivee?' — '+adresseArrivee:''}`;
+  else if(statutFinal==='termine')notifBody=`${empNom} a déposé ${cliNom} ✓${adresseArrivee?' — '+adresseArrivee:''}`;
+  if(notifBody) await notifyPatron('🚗 ACE TAXI', notifBody);
+
   await loadData();
 }
 </script>
