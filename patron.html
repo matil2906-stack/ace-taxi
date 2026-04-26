@@ -87,6 +87,13 @@
     .section-title{font-size:12px;color:var(--text3);font-family:'DM Mono',monospace;text-transform:uppercase;letter-spacing:0.08em;padding:12px 0 6px}
     .time-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px}
     .time-grid .field{margin-bottom:0}
+    /* Bannière notif temps réel */
+    .realtime-toast{position:fixed;top:70px;left:50%;transform:translateX(-50%) translateY(-20px);background:var(--bg2);border:1px solid var(--accent);border-radius:12px;padding:12px 20px;font-size:13px;color:var(--accent);z-index:999;max-width:90%;text-align:center;box-shadow:0 4px 24px rgba(0,0,0,0.6);opacity:0;transition:all 0.3s;pointer-events:none}
+    .realtime-toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+    /* Bouton activer notifs */
+    .notif-prompt{margin:10px 14px;background:rgba(245,200,66,0.08);border:1px solid rgba(245,200,66,0.2);border-radius:var(--radius-sm);padding:12px 14px;display:flex;align-items:center;justify-content:space-between;gap:10px}
+    .notif-prompt-txt{font-size:13px;color:var(--text2)}
+    .notif-prompt-btn{background:var(--accent);color:#0f0f0f;border:none;border-radius:var(--radius-sm);padding:7px 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;font-family:'DM Sans',sans-serif}
   </style>
 </head>
 <body>
@@ -98,6 +105,12 @@
   </div>
 </div>
 <div class="sync-bar"><div class="sdot" id="sdot"></div><span id="stxt">Chargement...</span></div>
+
+<!-- Bannière activation notifs -->
+<div class="notif-prompt" id="notif-prompt" style="display:none">
+  <span class="notif-prompt-txt">🔔 Activez les notifications pour être alerté en temps réel</span>
+  <button class="notif-prompt-btn" onclick="activerNotifs()">Activer</button>
+</div>
 
 <div class="tabs">
   <button class="tab active" id="tb-planning" onclick="switchTab('planning')">Planning</button>
@@ -140,6 +153,9 @@
   <div class="add-row" style="padding-top:14px"><button class="btn btn-accent" onclick="openVehModal(null)">+ Ajouter un véhicule</button></div>
   <div class="section-card" id="list-vehs"></div>
 </div>
+
+<!-- Toast notif temps réel -->
+<div class="realtime-toast" id="realtime-toast"></div>
 
 <!-- MODAL TRAJET -->
 <div class="modal-bg" id="modal-trajet">
@@ -211,19 +227,114 @@
   </div>
 </div>
 
+<!-- Firebase + Supabase -->
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-messaging-compat.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+// ── Firebase ──────────────────────────────────────────────
+const firebaseConfig = {
+  apiKey: "AIzaSyCBKvI7dSauqWzeFd0KEDIMS8EJTZ5xj4Y",
+  authDomain: "ace-taxi-a60b9.firebaseapp.com",
+  projectId: "ace-taxi-a60b9",
+  storageBucket: "ace-taxi-a60b9.firebasestorage.app",
+  messagingSenderId: "390648146701",
+  appId: "1:390648146701:web:fe0280d8239e97e1e1de44"
+};
+const VAPID_KEY = "BGaWG1TDhZmzmR9_gjnbt9UVaScsts_v_J2yEVUJDidMqUYbZcGM9Rp6kuyynjpYljCZl86dnvKNQ6M98zGzYvQ";
+
+firebase.initializeApp(firebaseConfig);
+const messaging = firebase.messaging();
+
+// ── Supabase ──────────────────────────────────────────────
 const SURL='https://smgfzzmyuhihdiinqwkh.supabase.co';
 const SKEY='sb_publishable_8sv-Hp6AGJb7qorD8tyA4Q_RQfReBNi';
 const sb=supabase.createClient(SURL,SKEY);
 let trajets=[],employes=[],clients=[],vehicules=[];
 let editTrajetId=null,editEmpId=null,editClientId=null,editVehId=null,stops=[];
 
+// ── Notifs FCM patron ──────────────────────────────────────
+async function activerNotifs() {
+  try {
+    const permission = await Notification.requestPermission();
+    if (permission !== 'granted') { alert('Notifications refusées.'); return; }
+    const token = await messaging.getToken({ vapidKey: VAPID_KEY });
+    if (token) {
+      // Stocker le token du patron avec role='patron'
+      const patronId = 'patron_' + (localStorage.getItem('ace_patron_id') || Date.now());
+      localStorage.setItem('ace_patron_id', patronId.replace('patron_',''));
+      await sb.from('employes').upsert({ id: patronId, nom: 'Patron', code: 'PATRON_FCM', role: 'patron', fcm_token: token });
+      document.getElementById('notif-prompt').style.display = 'none';
+      showToast('✅ Notifications activées !');
+    }
+  } catch(e) {
+    console.warn('Activation notifs:', e);
+  }
+}
+
+// Notif reçue quand app est ouverte
+messaging.onMessage(payload => {
+  const { title, body } = payload.notification || {};
+  showToast('🚗 ' + (body || title || 'Mise à jour trajet'));
+  loadAll();
+});
+
+function showToast(msg) {
+  const t = document.getElementById('realtime-toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  clearTimeout(t._timer);
+  t._timer = setTimeout(() => t.classList.remove('show'), 5000);
+}
+
+// Vérifier si notifs activées au chargement
+async function checkNotifStatus() {
+  if (!('Notification' in window)) return;
+  if (Notification.permission === 'default') {
+    document.getElementById('notif-prompt').style.display = 'flex';
+  } else if (Notification.permission === 'granted') {
+    // Rafraîchir le token silencieusement
+    try {
+      const token = await messaging.getToken({ vapidKey: VAPID_KEY });
+      const patronId = 'patron_' + (localStorage.getItem('ace_patron_id') || Date.now());
+      localStorage.setItem('ace_patron_id', patronId.replace('patron_',''));
+      await sb.from('employes').upsert({ id: patronId, nom: 'Patron', code: 'PATRON_FCM', role: 'patron', fcm_token: token });
+    } catch(e) {}
+  }
+}
+
+// ── Supabase Realtime (backup si app ouverte) ─────────────
+function setupRealtime(){
+  sb.channel('trajets-changes')
+    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'trajets'},payload=>{
+      const newData=payload.new;
+      const oldData=payload.old;
+      if(!newData.stops||!oldData.stops)return;
+      const newStops=newData.stops;
+      const oldStops=oldData.stops;
+      newStops.forEach((s,i)=>{
+        const oldS=oldStops[i];
+        if(!oldS||s.statut===oldS.statut)return;
+        const emp=employes.find(e=>e.id===newData.emp_id);
+        const cli=clients.find(c=>c.id===s.client_id);
+        const empNom=emp?emp.nom:"Un chauffeur";
+        const cliNom=cli?cli.nom:"un client";
+        let msg="";
+        if(s.statut==="pris")msg=empNom+" a pris en charge "+cliNom;
+        else if(s.statut==="arrive")msg=empNom+" est arrivé avec "+cliNom;
+        else if(s.statut==="termine")msg=empNom+" a déposé "+cliNom+" ✓";
+        if(msg) showToast('🚗 '+msg);
+      });
+      loadAll();
+    })
+    .subscribe();
+}
+
+// ── Core ──────────────────────────────────────────────────
 function setSS(status,msg){
-  const d=document.getElementById('sdot');
-  const t=document.getElementById('stxt');
-  d.className='sdot '+status;
-  t.textContent=msg;
+  document.getElementById('sdot').className='sdot '+status;
+  document.getElementById('stxt').textContent=msg;
 }
 
 async function loadAll(){
@@ -273,9 +384,9 @@ function updateStats(){
 
 function updateSelects(){
   const fe=document.getElementById('fe');const cv=fe.value;
-  fe.innerHTML='<option value="">Tous employés</option>'+employes.map(e=>`<option value="${e.id}"${e.id===cv?' selected':''}>${e.nom}</option>`).join('');
+  fe.innerHTML='<option value="">Tous employés</option>'+employes.filter(e=>e.role!=='patron').map(e=>`<option value="${e.id}"${e.id===cv?' selected':''}>${e.nom}</option>`).join('');
   const fe2=document.getElementById('f-employe');const ce=fe2.value;
-  fe2.innerHTML='<option value="">-- Choisir --</option>'+employes.map(e=>`<option value="${e.id}"${e.id===ce?' selected':''}>${e.nom}</option>`).join('');
+  fe2.innerHTML='<option value="">-- Choisir --</option>'+employes.filter(e=>e.role!=='patron').map(e=>`<option value="${e.id}"${e.id===ce?' selected':''}>${e.nom}</option>`).join('');
   const fv=document.getElementById('f-vehicule');const cv2=fv.value;
   fv.innerHTML='<option value="">-- Choisir --</option>'+vehicules.map(v=>`<option value="${v.id}"${v.id===cv2?' selected':''}>${v.marque} ${v.modele}${v.immat?' ('+v.immat+')':''}</option>`).join('');
 }
@@ -283,50 +394,31 @@ function updateSelects(){
 function renderStopsInModal(){
   document.getElementById('stops-container').innerHTML=stops.map((s,i)=>`
     <div class="stop-block">
-      <div class="stop-block-head">
-        <span>Client ${i+1}</span>
-        ${stops.length>1?`<button class="btn btn-danger btn-sm" onclick="removeStop(${i})">✕</button>`:''}
-      </div>
-      <div class="field" style="margin-bottom:8px">
-        <label>Client</label>
-        <select onchange="stops[${i}].client_id=this.value;prefillStop(${i})">
+      <div class="stop-block-head">Client ${i+1}<button class="btn btn-sm btn-danger" onclick="removeStop(${i})">✕</button></div>
+      <div class="field"><label>Client</label>
+        <select onchange="stops[${i}].client_id=this.value">
           <option value="">-- Choisir --</option>
           ${clients.map(c=>`<option value="${c.id}"${c.id===s.client_id?' selected':''}>${c.nom}</option>`).join('')}
         </select>
       </div>
       <div class="time-grid">
-        <div class="field"><label>Heure départ</label><input type="time" value="${s.heure_depart||''}" oninput="stops[${i}].heure_depart=this.value"></div>
-        <div class="field"><label>Heure arrivée</label><input type="time" value="${s.heure_arrivee||''}" oninput="stops[${i}].heure_arrivee=this.value"></div>
+        <div class="field"><label>Départ</label><input type="time" value="${s.heure_depart||''}" onchange="stops[${i}].heure_depart=this.value"></div>
+        <div class="field"><label>Arrivée</label><input type="time" value="${s.heure_arrivee||''}" onchange="stops[${i}].heure_arrivee=this.value"></div>
       </div>
-      <div class="field" style="margin-bottom:8px">
-        <label>Adresse de départ</label>
-        <input type="text" value="${s.depart||''}" placeholder="Adresse de départ" oninput="stops[${i}].depart=this.value">
-      </div>
-      <div class="field" style="margin-bottom:8px">
-        <label>Adresse d'arrivée</label>
-        <input type="text" value="${s.arrivee||''}" placeholder="Adresse d'arrivée" oninput="stops[${i}].arrivee=this.value">
-      </div>
-      <div class="ar-toggle">
-        <input type="checkbox" ${s.aller_retour?'checked':''} onchange="stops[${i}].aller_retour=this.checked;stops[${i}].redeposer='';renderStopsInModal()">
+      <div class="field"><label>Adresse départ</label><input type="text" value="${s.depart||''}" onchange="stops[${i}].depart=this.value" placeholder="Domicile, ..."></div>
+      <div class="field"><label>Adresse arrivée</label><input type="text" value="${s.arrivee||''}" onchange="stops[${i}].arrivee=this.value" placeholder="Hôpital, ..."></div>
+      <label class="ar-toggle">
+        <input type="checkbox" ${s.aller_retour?'checked':''} onchange="stops[${i}].aller_retour=this.checked;renderStopsInModal()">
         <span style="font-size:13px">🔄 Aller-retour</span>
-      </div>
-      ${s.aller_retour?`<div class="field" style="margin-bottom:0">
-        <label>Adresse où redéposer le client</label>
-        <input type="text" value="${s.redeposer||''}" placeholder="ex : Domicile, Hôpital..." oninput="stops[${i}].redeposer=this.value">
-      </div>`:''}
+      </label>
+      ${s.aller_retour?`<div class="field"><label>Redéposer à</label><input type="text" value="${s.redeposer||''}" onchange="stops[${i}].redeposer=this.value" placeholder="Adresse retour"></div>`:''}
     </div>`).join('');
 }
 
-function prefillStop(i){
-  const cli=clients.find(c=>c.id===stops[i].client_id);
-  if(cli){
-    if(!stops[i].depart&&cli.adr)stops[i].depart=cli.adr;
-    if(!stops[i].arrivee&&cli.dest)stops[i].arrivee=cli.dest;
-    renderStopsInModal();
-  }
+function addStop(){
+  stops.push({client_id:'',depart:'',arrivee:'',heure_depart:'',heure_arrivee:'',redeposer:'',aller_retour:false,statut:'attente'});
+  renderStopsInModal();
 }
-
-function addStop(){stops.push({client_id:'',depart:'',arrivee:'',heure_depart:'',heure_arrivee:'',redeposer:'',aller_retour:false,statut:'attente'});renderStopsInModal();}
 function removeStop(i){stops.splice(i,1);renderStopsInModal();}
 
 function renderTrajets(){
@@ -402,8 +494,9 @@ function renderClients(){
 
 function renderEmps(){
   const el=document.getElementById('list-emps');
-  if(!employes.length){el.innerHTML='<div class="empty">Aucun employé</div>';return;}
-  el.innerHTML=employes.map(e=>`
+  const list=employes.filter(e=>e.role!=='patron');
+  if(!list.length){el.innerHTML='<div class="empty">Aucun employé</div>';return;}
+  el.innerHTML=list.map(e=>`
     <div class="item-row">
       <div class="avatar">${initials(e.nom)}</div>
       <div class="item-info">
@@ -548,60 +641,10 @@ document.querySelectorAll('.modal-bg').forEach(m=>{
   m.addEventListener('click',e=>{if(e.target===m)m.classList.remove('open')});
 });
 
-// Notifications temps réel
-function setupRealtime(){
-  sb.channel('trajets-changes')
-    .on('postgres_changes',{event:'UPDATE',schema:'public',table:'trajets'},payload=>{
-      const newData=payload.new;
-      const oldData=payload.old;
-      if(!newData.stops||!oldData.stops)return;
-      const newStops=newData.stops;
-      const oldStops=oldData.stops;
-      newStops.forEach((s,i)=>{
-        const oldS=oldStops[i];
-        if(!oldS)return;
-        if(s.statut!==oldS.statut){
-          const emp=employes.find(e=>e.id===newData.emp_id);
-          const cli=clients.find(c=>c.id===s.client_id);
-          const empNom=emp?emp.nom:"Un chauffeur";
-          const cliNom=cli?cli.nom:"un client";
-          let msg="";
-          if(s.statut==="pris")msg=empNom+" a pris en charge "+cliNom;
-          else if(s.statut==="arrive")msg=empNom+" est arrivé avec "+cliNom;
-          else if(s.statut==="termine")msg=empNom+" a déposé "+cliNom;
-          if(msg){
-            showNotif(msg);
-            if(Notification.permission==="granted"){
-              new Notification("ACE TAXI",{body:msg,icon:"/icône-192.png"});
-            }
-          }
-        }
-      });
-      loadAll();
-    })
-    .subscribe();
-}
-
-function showNotif(msg){
-  let banner=document.getElementById("realtime-banner");
-  if(!banner){
-    banner=document.createElement("div");
-    banner.id="realtime-banner";
-    banner.style.cssText="position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#1a1a1a;border:1px solid #f5c842;border-radius:10px;padding:12px 20px;font-size:13px;color:#f5c842;z-index:999;max-width:90%;text-align:center;box-shadow:0 4px 20px rgba(0,0,0,0.5)";
-    document.body.appendChild(banner);
-  }
-  banner.textContent="🚗 "+msg;
-  banner.style.display="block";
-  clearTimeout(banner._timer);
-  banner._timer=setTimeout(()=>{banner.style.display="none";},5000);
-}
-
-// Demander permission notifications
-if(Notification.permission==="default"){
-  Notification.requestPermission();
-}
-
-loadAll().then(()=>setupRealtime());
+loadAll().then(()=>{
+  setupRealtime();
+  checkNotifStatus();
+});
 </script>
 
 <script>
