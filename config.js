@@ -1,6 +1,6 @@
 // Réglages publics de l'application (aucun secret ici : ces valeurs sont visibles par tous).
 window.ACE_CONFIG = {
-  SUPABASE_URL: "https://ilzfdxkzknzlrpnzrixw.supabase.co",
+  SUPABASE_URL: "https://szwoyvljjwhroppdpvhd.supabase.co",
   SUPABASE_KEY: "sb_publishable_2Wkq8z9Ez3a-oKa6A16fCQ_d30b-kqm",              // clé "publishable" (publique)
   EMAIL_TEMPLATE: "ace-taxi.{id}@example.com",     // doit être identique au réglage EMAIL_TEMPLATE des fonctions serveur
   PUSH: false,                                   // mettre true seulement après avoir installé les notifications automatiques (dossier "optionnel")
