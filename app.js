@@ -28,6 +28,7 @@ function showLogin(msg = '') {
       <div id="login-err" class="err" role="alert"></div>
       <button class="btn btn-accent btn-block">Se connecter</button>
       <div style="text-align:center;margin-top:14px"><button type="button" class="link-btn" data-act="forgot">Mot de passe oublié ?</button></div>
+      ${shared.isStandalone() ? '' : `<div style="text-align:center;margin-top:14px">${shared.installBtn('btn btn-sm')}</div>`}
     </form>`);
 }
 forms.login = async (f) => {
